@@ -2,43 +2,110 @@ package cmd
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"strings"
-	"time"
-
-	"github.com/tcast/authio_cli/internal/credentials"
 )
 
-// Import handles `authio import <provider> --file <path>` and progressively
-// uploads users into the customer's Authio project. We never import password
-// hashes — users get a magic-link enrollment invitation on their first
-// attempted sign-in.
+// Import handles `authio import <provider> --file <path> [flags]`.
+//
+// Flags supported by every provider:
+//
+//	--file <path>          required; export file from the source IdP
+//	--profile <name>       credentials profile (default: "default")
+//	--api-url <url>        override management-api URL
+//	--rate-limit-rps <n>   cap requests/sec (default: 50)
+//	--dry-run              parse + count without POSTing
+//	--force                resume even if the source file size changed
+//
+// Resumability: each run writes <file>.authio-import.cursor next to the
+// source. Re-running picks up from cursor.LastIndex; the cursor key is
+// (provider, file, fileSize) so file edits trip a clear error unless you
+// pass --force.
+//
+// Magic-link enrollment for newly-created users happens server-side via
+// the existing /v1/users endpoint; the importer never sees password
+// material — Authio is passwordless by design.
 func Import(args []string) error {
 	if len(args) == 0 {
-		return errors.New("usage: authio import <provider> --file <path> [--profile <name>] [--dry-run]")
+		return errors.New(importUsage())
 	}
 	provider := strings.ToLower(args[0])
 	rest := args[1:]
+	for _, a := range rest {
+		if a == "--help" || a == "-h" {
+			return printProviderHelp(provider)
+		}
+	}
 	switch provider {
 	case "auth0":
-		return importAuth0(rest)
-	case "clerk", "cognito", "firebase", "supabase":
-		return fmt.Errorf("authio import %s: not implemented yet — see https://authiodocs-production.up.railway.app/quickstart/migrate", provider)
+		return runProviderImport(auth0Parser{}, rest)
+	case "clerk":
+		return runProviderImport(clerkParser{}, rest)
+	case "cognito":
+		return runProviderImport(cognitoParser{}, rest)
+	case "firebase":
+		return runProviderImport(firebaseParser{}, rest)
+	case "supabase":
+		return runProviderImport(supabaseParser{}, rest)
+	case "help", "--help", "-h":
+		fmt.Println(importUsage())
+		return nil
 	}
 	return fmt.Errorf("unknown provider %q (auth0, clerk, cognito, firebase, supabase)", provider)
 }
 
+func importUsage() string {
+	return `usage: authio import <provider> --file <path> [flags]
+
+PROVIDERS
+  auth0       Auth0 Management-API user export (JSON array or NDJSON)
+  clerk       Clerk Backend-API user export
+  cognito     AWS Cognito list-users JSON
+  firebase    Firebase auth:export JSON
+  supabase    Supabase auth.users JSON dump
+
+FLAGS
+  --file <path>           required
+  --profile <name>        credentials profile (default: "default")
+  --api-url <url>         override management-api URL
+  --rate-limit-rps <n>    cap requests/sec (default: 50)
+  --dry-run               parse + count without POSTing
+  --force                 resume even if the source file size changed
+
+DETAILS
+  authio import <provider> --help    show provider-specific notes`
+}
+
+func printProviderHelp(provider string) error {
+	switch strings.ToLower(provider) {
+	case "auth0":
+		fmt.Println(auth0Parser{}.Help())
+	case "clerk":
+		fmt.Println(clerkParser{}.Help())
+	case "cognito":
+		fmt.Println(cognitoParser{}.Help())
+	case "firebase":
+		fmt.Println(firebaseParser{}.Help())
+	case "supabase":
+		fmt.Println(supabaseParser{}.Help())
+	default:
+		fmt.Println(importUsage())
+	}
+	return nil
+}
+
 // =====================================================================
-// auth0 — reads a Management API user-export JSON or NDJSON file
+// backward-compat: kept so internal/cmd/import_test.go's existing
+// TestParseAuth0ExportArray / NDJSON / Empty tests keep passing.
+// New code should use auth0Parser{}.Parse(...) directly.
 // =====================================================================
 
-// Auth0User is the subset of fields we read from an Auth0 user export. The
-// official format wraps a JSON array of these. Some exports also use NDJSON.
+// Auth0User mirrors the original synchronous shape returned by the legacy
+// parseAuth0Export helper.
 type Auth0User struct {
 	UserID        string `json:"user_id"`
 	Email         string `json:"email"`
@@ -47,132 +114,24 @@ type Auth0User struct {
 	Nickname      string `json:"nickname"`
 }
 
-func importAuth0(args []string) error {
-	var (
-		path     = ""
-		profile  = "default"
-		dryRun   = false
-		throttle = 50 * time.Millisecond
-	)
-	for i := 0; i < len(args); i++ {
-		switch args[i] {
-		case "--file":
-			if i+1 < len(args) {
-				path = args[i+1]
-				i++
-			}
-		case "--profile":
-			if i+1 < len(args) {
-				profile = args[i+1]
-				i++
-			}
-		case "--dry-run":
-			dryRun = true
-		}
-	}
-	if path == "" {
-		return errors.New("--file <path> is required")
-	}
-
-	users, err := parseAuth0Export(path)
-	if err != nil {
-		return fmt.Errorf("parse %s: %w", path, err)
-	}
-	fmt.Printf("  Parsed %d users from %s\n", len(users), path)
-
-	if dryRun {
-		for i, u := range users {
-			if i >= 5 {
-				fmt.Printf("  ... %d more\n", len(users)-5)
-				break
-			}
-			fmt.Printf("    would import %s (%s)\n", u.Email, u.UserID)
-		}
-		return nil
-	}
-
-	store, err := credentials.DefaultStore()
-	if err != nil {
-		return err
-	}
-	creds, err := store.Load(profile)
-	if err != nil {
-		return err
-	}
-	if creds.APIURL == "" {
-		creds.APIURL = defaultMgmtAPI
-	}
-
-	cursorPath := path + ".authio-import.cursor"
-	startAt := readCursor(cursorPath)
-	if startAt > 0 {
-		fmt.Printf("  Resuming from index %d\n", startAt)
-	}
-
-	created, existed, failed := 0, 0, 0
-	for i := startAt; i < len(users); i++ {
-		u := users[i]
-		if u.Email == "" {
-			failed++
-			continue
-		}
-		body, _ := json.Marshal(map[string]any{
-			"email":          strings.ToLower(strings.TrimSpace(u.Email)),
-			"name":           u.Name,
-			"email_verified": u.EmailVerified,
-		})
-		req, _ := http.NewRequest(http.MethodPost, creds.APIURL+"/v1/users", bytes.NewReader(body))
-		req.Header.Set("Content-Type", "application/json")
-		req.Header.Set("Authorization", "Bearer "+creds.APIKey)
-		req.Header.Set("User-Agent", "authio-cli-import-auth0/0.1")
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			fmt.Printf("    err  %s — %v\n", u.Email, err)
-			failed++
-			writeCursor(cursorPath, i)
-			time.Sleep(throttle)
-			continue
-		}
-		raw, _ := io.ReadAll(resp.Body)
-		_ = resp.Body.Close()
-		switch resp.StatusCode {
-		case 200:
-			existed++
-		case 201:
-			created++
-		default:
-			failed++
-			fmt.Printf("    err  %s — %d %s\n", u.Email, resp.StatusCode, strings.TrimSpace(string(raw)))
-		}
-		writeCursor(cursorPath, i+1)
-		if (i+1)%25 == 0 {
-			fmt.Printf("  ... %d / %d processed (created=%d, existed=%d, failed=%d)\n",
-				i+1, len(users), created, existed, failed)
-		}
-		time.Sleep(throttle)
-	}
-	fmt.Printf("  Done. created=%d existed=%d failed=%d\n", created, existed, failed)
-	if failed == 0 {
-		_ = os.Remove(cursorPath)
-	}
-	return nil
-}
-
+// parseAuth0Export reads the file and returns the full slice in memory.
+// Only used by the original test; the live importer streams.
 func parseAuth0Export(path string) ([]Auth0User, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	trimmed := bytes.TrimSpace(b)
-	// Try JSON array first.
-	if len(trimmed) > 0 && trimmed[0] == '[' {
+	if len(trimmed) == 0 {
+		return nil, nil
+	}
+	if trimmed[0] == '[' {
 		var users []Auth0User
 		if err := json.Unmarshal(trimmed, &users); err != nil {
 			return nil, err
 		}
 		return users, nil
 	}
-	// NDJSON: one user per line.
 	var users []Auth0User
 	for _, line := range bytes.Split(trimmed, []byte("\n")) {
 		line = bytes.TrimSpace(line)
@@ -188,16 +147,6 @@ func parseAuth0Export(path string) ([]Auth0User, error) {
 	return users, nil
 }
 
-func readCursor(path string) int {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return 0
-	}
-	var n int
-	_, _ = fmt.Sscanf(string(bytes.TrimSpace(b)), "%d", &n)
-	return n
-}
-
-func writeCursor(path string, n int) {
-	_ = os.WriteFile(path, []byte(fmt.Sprintf("%d\n", n)), 0o644)
-}
+// _ = context.Background to keep context import in this file even if
+// future helpers move out — the parsers call ctx.Err() during streaming.
+var _ = context.Background

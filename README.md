@@ -83,7 +83,7 @@ project_id = "proj_staging_..."
 
 ## Source
 
-- https://github.com/tcast/authio_cli
+- https://github.com/authio-com/authio_cli
 - https://authiodocs-production.up.railway.app
 
 ## License

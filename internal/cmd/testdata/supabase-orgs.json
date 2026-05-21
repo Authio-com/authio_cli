@@ -1,0 +1,14 @@
+{
+  "orgs": [
+    {
+      "external_id": "acme",
+      "name": "Acme Corp",
+      "slug": "acme",
+      "domain": "acme.example",
+      "members": [
+        {"email": "ada@acme.example", "role": "owner"},
+        {"email": "grace@acme.example", "role": "member"}
+      ]
+    }
+  ]
+}

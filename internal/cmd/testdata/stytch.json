@@ -1,0 +1,56 @@
+{
+  "organizations": [
+    {
+      "organization_id": "organization-test-acme",
+      "organization_name": "Acme Corp",
+      "organization_slug": "acme",
+      "members": [
+        {
+          "member_id": "member-test-ada",
+          "email_address": "ada@acme.example",
+          "name": "Ada Lovelace",
+          "status": "active",
+          "is_admin": true,
+          "mfa_enrolled": true,
+          "trusted_metadata": {"plan": "enterprise"}
+        },
+        {
+          "member_id": "member-test-grace",
+          "email_address": "grace@acme.example",
+          "name": "Grace Hopper",
+          "status": "active",
+          "is_admin": false
+        }
+      ]
+    },
+    {
+      "organization_id": "organization-test-globex",
+      "organization_name": "Globex Inc",
+      "organization_slug": "globex",
+      "members": [
+        {
+          "member_id": "member-test-ada-globex",
+          "email_address": "ada@acme.example",
+          "name": "Ada Lovelace",
+          "status": "active",
+          "is_admin": false
+        },
+        {
+          "member_id": "member-test-linus",
+          "email_address": "linus@globex.example",
+          "name": "Linus Pauling",
+          "status": "active",
+          "is_admin": true
+        }
+      ]
+    }
+  ],
+  "sso_connections": [
+    {
+      "connection_id": "saml-connection-test-acme",
+      "organization_id": "organization-test-acme",
+      "display_name": "Acme Okta",
+      "idp": "saml"
+    }
+  ]
+}

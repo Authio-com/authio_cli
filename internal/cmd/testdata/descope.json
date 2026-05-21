@@ -1,0 +1,43 @@
+{
+  "tenants": [
+    {"id": "T2abc", "name": "Acme Corp", "selfProvisioningDomains": ["acme.example"]},
+    {"id": "T2def", "name": "Globex Inc", "selfProvisioningDomains": ["globex.example"]}
+  ],
+  "users": [
+    {
+      "loginId": "ada@acme.example",
+      "userId": "U2ada",
+      "email": "ada@acme.example",
+      "verifiedEmail": true,
+      "name": "Ada Lovelace",
+      "picture": "https://cdn.example/ada.png",
+      "status": "enabled",
+      "customAttributes": {"role": "admin", "team": "platform"},
+      "userTenants": [
+        {"tenantId": "T2abc", "tenantName": "Acme Corp", "roleNames": ["admin"]},
+        {"tenantId": "T2def", "tenantName": "Globex Inc", "roleNames": ["member"]}
+      ],
+      "oauth": {"google": "115599887766"},
+      "totp": true
+    },
+    {
+      "loginId": "grace@acme.example",
+      "email": "grace@acme.example",
+      "verifiedEmail": true,
+      "name": "Grace Hopper",
+      "status": "enabled",
+      "userTenants": [
+        {"tenantId": "T2abc", "tenantName": "Acme Corp", "roleNames": ["member"]}
+      ]
+    },
+    {
+      "loginId": "disabled@globex.example",
+      "email": "disabled@globex.example",
+      "status": "disabled",
+      "userTenants": []
+    }
+  ],
+  "sso": [
+    {"tenantId": "T2abc", "name": "Acme Okta", "type": "saml"}
+  ]
+}

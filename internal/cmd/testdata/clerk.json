@@ -1,0 +1,45 @@
+[
+  {
+    "id": "user_2abc",
+    "primary_email_address_id": "idn_email_1",
+    "email_addresses": [
+      {"id": "idn_email_1", "email_address": "ada@acme.example", "verification": {"status": "verified"}}
+    ],
+    "phone_numbers": [{"phone_number": "+15555550100", "verified": true}],
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "image_url": "https://img.clerk.com/ada",
+    "external_accounts": [
+      {"id": "ext_1", "provider": "oauth_google", "provider_user_id": "g-115599"}
+    ],
+    "organization_memberships": [
+      {"id": "orgmem_1", "role": "admin",
+        "organization": {"id": "org_acme", "name": "Acme", "slug": "acme"}},
+      {"id": "orgmem_2", "role": "member",
+        "organization": {"id": "org_research", "name": "Acme Research", "slug": "acme-research"}}
+    ],
+    "two_factor_enabled": true,
+    "public_metadata": {"role": "engineer"}
+  },
+  {
+    "id": "user_2def",
+    "email_addresses": [
+      {"id": "idn_email_2", "email_address": "linus@globex.example", "verification": {"status": "verified"}}
+    ],
+    "username": "linus",
+    "organization_memberships": [
+      {"id": "orgmem_3", "role": "owner",
+        "organization": {"id": "org_globex", "name": "Globex", "slug": "globex"}}
+    ]
+  },
+  {
+    "id": "user_2ghi",
+    "email_addresses": [
+      {"id": "idn_email_3", "email_address": "ada@acme.example", "verification": {"status": "verified"}}
+    ],
+    "organization_memberships": [
+      {"id": "orgmem_4", "role": "member",
+        "organization": {"id": "org_skunkworks", "name": "Skunkworks", "slug": "skunkworks"}}
+    ]
+  }
+]

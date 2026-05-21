@@ -1,0 +1,46 @@
+[
+  {
+    "user_id": "auth0|65f8a1e1",
+    "email": "ada@acme.example",
+    "email_verified": true,
+    "name": "Ada Lovelace",
+    "nickname": "ada",
+    "picture": "https://cdn.example/ada.png",
+    "identities": [
+      {"provider": "auth0", "user_id": "65f8a1e1", "connection": "Username-Password-Authentication"},
+      {"provider": "google-oauth2", "user_id": "115599887766", "connection": "google-oauth2"}
+    ],
+    "organizations": [
+      {"id": "org_acme", "name": "acme", "display_name": "Acme Corp", "roles": [{"name": "admin"}]}
+    ],
+    "app_metadata": {"plan": "enterprise"},
+    "user_metadata": {"locale": "en"}
+  },
+  {
+    "user_id": "auth0|65f8a1e2",
+    "email": "grace@acme.example",
+    "email_verified": true,
+    "name": "Grace Hopper",
+    "identities": [
+      {"provider": "samlp", "user_id": "grace@acme.example", "connection": "Acme-Okta"}
+    ],
+    "organizations": [
+      {"id": "org_acme", "name": "acme", "display_name": "Acme Corp", "roles": [{"name": "member"}]}
+    ]
+  },
+  {
+    "user_id": "auth0|65f8a1e3",
+    "email": "alan@globex.example",
+    "email_verified": false,
+    "nickname": "alan",
+    "blocked": false,
+    "organizations": [
+      {"id": "org_globex", "name": "globex", "display_name": "Globex", "roles": [{"name": "admin"}]}
+    ]
+  },
+  {
+    "user_id": "auth0|65f8a1e4",
+    "email": "blocked@x.example",
+    "blocked": true
+  }
+]

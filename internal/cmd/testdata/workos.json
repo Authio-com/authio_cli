@@ -1,0 +1,28 @@
+{
+  "organizations": [
+    {"id": "org_acme", "name": "Acme Corp", "slug": "acme", "domain": "acme.example"},
+    {"id": "org_globex", "name": "Globex Inc", "slug": "globex", "domain": "globex.example"},
+    {"id": "org_skunkworks", "name": "Skunkworks Labs", "slug": "skunkworks"}
+  ],
+  "users": [
+    {"id": "user_acme_ada", "email": "ada@acme.example", "email_verified": true, "first_name": "Ada", "last_name": "Lovelace"},
+    {"id": "user_acme_grace", "email": "grace@acme.example", "email_verified": true, "first_name": "Grace", "last_name": "Hopper"},
+    {"id": "user_globex_ada", "email": "ada@acme.example", "email_verified": true, "first_name": "Ada", "last_name": "Lovelace"},
+    {"id": "user_skunk_ada", "email": "ada@acme.example", "email_verified": true, "first_name": "Ada", "last_name": "Lovelace"},
+    {"id": "user_globex_linus", "email": "linus@globex.example", "email_verified": true, "first_name": "Linus", "last_name": "Pauling"}
+  ],
+  "organization_memberships": [
+    {"id": "mem_1", "user_id": "user_acme_ada", "organization_id": "org_acme", "role": {"slug": "admin"}, "status": "active"},
+    {"id": "mem_2", "user_id": "user_acme_grace", "organization_id": "org_acme", "role": {"slug": "member"}, "status": "active"},
+    {"id": "mem_3", "user_id": "user_globex_ada", "organization_id": "org_globex", "role": {"slug": "admin"}, "status": "active"},
+    {"id": "mem_4", "user_id": "user_skunk_ada", "organization_id": "org_skunkworks", "role": {"slug": "member"}, "status": "active"},
+    {"id": "mem_5", "user_id": "user_globex_linus", "organization_id": "org_globex", "role": {"slug": "member"}, "status": "active"}
+  ],
+  "sso_connections": [
+    {"id": "conn_acme_okta", "name": "Acme Okta SAML", "connection_type": "OktaSAML", "organization_id": "org_acme"},
+    {"id": "conn_globex_oidc", "name": "Globex OIDC", "connection_type": "GenericOIDC", "organization_id": "org_globex"}
+  ],
+  "directories": [
+    {"id": "dir_acme_scim", "name": "Acme Okta SCIM", "type": "okta scim v2.0", "organization_id": "org_acme"}
+  ]
+}

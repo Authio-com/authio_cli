@@ -7,6 +7,7 @@
 //	authio webhook listen <url>           Tunnel webhooks to a local URL (Stripe-listen-style)
 //	authio import auth0|clerk|cognito|firebase|supabase ...
 //	                                       Bulk-import existing users from another auth provider
+//	authio bootstrap mint                  Mint a single-use bootstrap token (admin only)
 //	authio version                        Print version info
 package main
 
@@ -45,6 +46,10 @@ func run(args []string) error {
 		return cmd.Webhook(args[1:])
 	case "import":
 		return cmd.Import(args[1:])
+	case "migrate":
+		return cmd.Migrate(args[1:])
+	case "bootstrap":
+		return cmd.Bootstrap(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("authio", version)
 		return nil
@@ -69,6 +74,9 @@ COMMANDS
   webhook listen URL   Tunnel webhook deliveries to a local URL
   import <provider>    Bulk-import users from another auth platform
                        Providers: auth0, clerk, cognito, firebase, supabase
+  migrate <subcommand> Live-credentials importer (run|plan).
+                       Used by the dashboard wizard's API-token path.
+  bootstrap mint       Mint a single-use bootstrap token (admin only)
   version              Print version info
   help                 Show this help`)
 }

@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "localId": "fbuser-001",
+      "email": "ada@acme.example",
+      "emailVerified": true,
+      "displayName": "Ada Lovelace",
+      "photoUrl": "https://lh.googleusercontent.com/ada",
+      "disabled": false,
+      "providerUserInfo": [
+        {"providerId": "google.com", "rawId": "115599887766", "email": "ada@acme.example", "displayName": "Ada Lovelace"},
+        {"providerId": "password", "rawId": "ada@acme.example", "email": "ada@acme.example"}
+      ],
+      "customAttributes": "{\"role\":\"admin\",\"team\":\"platform\"}",
+      "mfaInfo": [{"mfaEnrollmentId": "tot_1", "enrolledAt": "2024-01-01T00:00:00Z"}]
+    },
+    {
+      "localId": "fbuser-002",
+      "email": "grace@acme.example",
+      "emailVerified": true,
+      "displayName": "Grace Hopper",
+      "disabled": false,
+      "providerUserInfo": [
+        {"providerId": "github.com", "rawId": "9988", "displayName": "Grace Hopper"}
+      ]
+    },
+    {
+      "localId": "fbuser-003",
+      "email": "rejected@acme.example",
+      "disabled": true
+    },
+    {
+      "localId": "fbuser-004",
+      "email": "tenanted@globex.example",
+      "emailVerified": true,
+      "tenantId": "globex-prod",
+      "providerUserInfo": []
+    }
+  ]
+}

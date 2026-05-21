@@ -1,0 +1,33 @@
+{
+  "users": [
+    {
+      "id": "abf16c39-aa00-4f1f-8c1d-001",
+      "email": "ada@acme.example",
+      "email_confirmed_at": "2024-06-01T10:00:00Z",
+      "phone": "+15555550100",
+      "phone_confirmed_at": "2024-06-01T10:05:00Z",
+      "raw_user_meta_data": {"full_name": "Ada Lovelace", "avatar_url": "https://cdn.example/ada.png"},
+      "raw_app_meta_data": {"provider": "email", "providers": ["email", "google"]},
+      "identities": [
+        {"id": "115599887766", "provider": "google", "identity_data": {"sub": "115599887766"}},
+        {"id": "ada@acme.example", "provider": "email", "identity_data": {"email": "ada@acme.example"}}
+      ]
+    },
+    {
+      "id": "abf16c39-aa00-4f1f-8c1d-002",
+      "email": "grace@acme.example",
+      "email_confirmed_at": null,
+      "raw_user_meta_data": {"name": "Grace Hopper"},
+      "raw_app_meta_data": {"provider": "github"},
+      "identities": [
+        {"id": "9988", "provider": "github", "identity_data": {"sub": "9988"}}
+      ]
+    },
+    {
+      "id": "abf16c39-aa00-4f1f-8c1d-003",
+      "email": "banned@globex.example",
+      "email_confirmed_at": "2024-01-01T00:00:00Z",
+      "banned_until": "2099-01-01T00:00:00Z"
+    }
+  ]
+}

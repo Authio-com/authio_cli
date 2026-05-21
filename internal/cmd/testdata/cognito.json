@@ -1,0 +1,45 @@
+{
+  "Users": [
+    {
+      "Username": "1c43c8a1-aaaa-0000-1111-222233334444",
+      "UserStatus": "CONFIRMED",
+      "Enabled": true,
+      "Attributes": [
+        {"Name": "sub", "Value": "1c43c8a1-aaaa-0000-1111-222233334444"},
+        {"Name": "email", "Value": "ada@acme.example"},
+        {"Name": "email_verified", "Value": "true"},
+        {"Name": "name", "Value": "Ada Lovelace"},
+        {"Name": "custom:tier", "Value": "enterprise"},
+        {"Name": "custom:cost_center", "Value": "eng-platform"}
+      ],
+      "MFAOptions": [{"Name": "preferred", "Value": "SOFTWARE_TOKEN_MFA"}],
+      "Groups": [{"GroupName": "acme-admins", "Description": "Acme Admins"}]
+    },
+    {
+      "Username": "1c43c8a1-bbbb-0000-1111-222233334444",
+      "UserStatus": "CONFIRMED",
+      "Enabled": true,
+      "Attributes": [
+        {"Name": "sub", "Value": "1c43c8a1-bbbb-0000-1111-222233334444"},
+        {"Name": "email", "Value": "grace@acme.example"},
+        {"Name": "email_verified", "Value": "true"}
+      ],
+      "FederatedIdentities": [
+        {"provider": "Google", "subject": "1099887766"}
+      ],
+      "Groups": [{"GroupName": "acme-engineers", "Description": "Acme Engineers"}]
+    },
+    {
+      "Username": "1c43c8a1-cccc-0000-1111-222233334444",
+      "UserStatus": "UNCONFIRMED",
+      "Enabled": true,
+      "Attributes": [{"Name": "email", "Value": "pending@acme.example"}]
+    },
+    {
+      "Username": "1c43c8a1-dddd-0000-1111-222233334444",
+      "UserStatus": "CONFIRMED",
+      "Enabled": false,
+      "Attributes": [{"Name": "email", "Value": "disabled@acme.example"}]
+    }
+  ]
+}

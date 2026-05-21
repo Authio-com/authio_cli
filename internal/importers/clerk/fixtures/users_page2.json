@@ -1,0 +1,27 @@
+[
+  {
+    "id": "user_2NfYZ0123",
+    "primary_email_address_id": "idn_email_alan",
+    "email_addresses": [
+      {
+        "id": "idn_email_alan",
+        "email_address": "alan@example.com",
+        "verification": {"status": "verified"}
+      }
+    ],
+    "first_name": "Alan",
+    "last_name": "Turing",
+    "image_url": "https://img.clerk.com/alan.png",
+    "external_accounts": [
+      {
+        "id": "ext_microsoft_alan",
+        "provider": "oauth_microsoft",
+        "provider_user_id": "ms_77770000"
+      }
+    ],
+    "two_factor_enabled": false,
+    "created_at": 1694000000000,
+    "last_sign_in_at": 1701500000000,
+    "public_metadata": {}
+  }
+]

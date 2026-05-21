@@ -1,0 +1,29 @@
+[
+  {
+    "id": "orgmem_acme_ada",
+    "organization_id": "org_acme",
+    "role": "admin",
+    "role_name": "Administrator",
+    "public_user_data": {
+      "user_id": "user_2NfABCdef",
+      "first_name": "Ada",
+      "last_name": "Lovelace",
+      "identifier": "ada@example.com"
+    },
+    "created_at": 1690500000000,
+    "updated_at": 1700000000000
+  },
+  {
+    "id": "orgmem_acme_grace",
+    "organization_id": "org_acme",
+    "role": "basic_member",
+    "public_user_data": {
+      "user_id": "user_2NfGHIjkl",
+      "first_name": "Grace",
+      "last_name": "Hopper",
+      "identifier": "grace@example.com"
+    },
+    "created_at": 1691000000000,
+    "updated_at": 1701000000000
+  }
+]

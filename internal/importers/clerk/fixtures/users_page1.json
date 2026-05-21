@@ -1,0 +1,127 @@
+[
+  {
+    "id": "user_2NfABCdef",
+    "primary_email_address_id": "idn_email_primary_ada",
+    "email_addresses": [
+      {
+        "id": "idn_email_primary_ada",
+        "email_address": "ada@example.com",
+        "verification": {"status": "verified"}
+      },
+      {
+        "id": "idn_email_secondary_ada",
+        "email_address": "ada+work@example.com",
+        "verification": {"status": "unverified"}
+      }
+    ],
+    "primary_phone_number_id": "idn_phone_ada",
+    "phone_numbers": [
+      {
+        "id": "idn_phone_ada",
+        "phone_number": "+15555550100",
+        "verified": true,
+        "verification": {"status": "verified"}
+      }
+    ],
+    "first_name": "Ada",
+    "last_name": "Lovelace",
+    "image_url": "https://img.clerk.com/ada.png",
+    "has_image": true,
+    "external_accounts": [
+      {
+        "id": "ext_google_ada",
+        "provider": "oauth_google",
+        "provider_user_id": "100100100",
+        "email_address": "ada@example.com",
+        "first_name": "Ada",
+        "last_name": "Lovelace"
+      }
+    ],
+    "passkeys": [
+      {
+        "id": "pk_1",
+        "credential_id": "Y3JlZF9hYmM",
+        "name": "MacBook Touch ID",
+        "public_key": "BASE64_PUBLIC_KEY_DATA",
+        "aaguid": "00000000-0000-0000-0000-000000000000",
+        "counter": 12,
+        "transports": ["internal", "hybrid"],
+        "backup_eligible": true,
+        "backup_state": true,
+        "user_verified": true,
+        "created_at": 1700000000000,
+        "last_used_at": 1700100000000
+      }
+    ],
+    "totp_enabled": true,
+    "backup_code_enabled": true,
+    "two_factor_enabled": true,
+    "banned": false,
+    "locked": false,
+    "created_at": 1690000000000,
+    "updated_at": 1700000000000,
+    "last_sign_in_at": 1700200000000,
+    "last_active_at": 1700300000000,
+    "public_metadata": {"role": "engineer", "plan": "pro"},
+    "private_metadata": {"stripe_customer": "cus_abc"},
+    "unsafe_metadata": null
+  },
+  {
+    "id": "user_2NfGHIjkl",
+    "email_addresses": [
+      {
+        "id": "idn_email_grace",
+        "email_address": "grace@example.com",
+        "verification": {"status": "verified"}
+      }
+    ],
+    "phone_numbers": [],
+    "username": "grace_h",
+    "first_name": "",
+    "last_name": "",
+    "image_url": "",
+    "external_accounts": [
+      {
+        "id": "ext_github_grace",
+        "provider": "oauth_github",
+        "provider_user_id": "55505550",
+        "email_address": "grace@example.com"
+      }
+    ],
+    "passkeys": [],
+    "totp_enabled": false,
+    "two_factor_enabled": false,
+    "banned": false,
+    "locked": false,
+    "created_at": 1691000000000,
+    "updated_at": 1701000000000,
+    "last_sign_in_at": 0,
+    "public_metadata": null,
+    "private_metadata": null,
+    "unsafe_metadata": null
+  },
+  {
+    "id": "user_2NfMNOpqr",
+    "email_addresses": [
+      {
+        "id": "idn_email_banned",
+        "email_address": "banned@example.com",
+        "verification": {"status": "verified"}
+      }
+    ],
+    "first_name": "B",
+    "last_name": "Anned",
+    "banned": true,
+    "locked": false,
+    "created_at": 1692000000000
+  },
+  {
+    "id": "user_2NfSTUvwx",
+    "email_addresses": [],
+    "first_name": "No",
+    "last_name": "Email",
+    "banned": false,
+    "locked": false,
+    "created_at": 1693000000000
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": "org_acme",
+      "name": "Acme Corp",
+      "slug": "acme-corp",
+      "logo_url": "https://img.clerk.com/orgs/acme.png",
+      "has_image": true,
+      "created_at": 1690000000000,
+      "updated_at": 1700000000000,
+      "members_count": 12,
+      "public_metadata": {"tier": "enterprise"},
+      "private_metadata": {"stripe_subscription": "sub_xyz"}
+    },
+    {
+      "id": "org_globex",
+      "name": "Globex",
+      "slug": "globex",
+      "image_url": "https://img.clerk.com/orgs/globex.png",
+      "created_at": 1691000000000,
+      "updated_at": 1701000000000,
+      "members_count": 4
+    }
+  ],
+  "total_count": 2
+}

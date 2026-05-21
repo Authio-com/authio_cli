@@ -1,0 +1,14 @@
+[
+  {
+    "id": "orgmem_globex_alan",
+    "organization_id": "org_globex",
+    "role": "org:admin",
+    "public_user_data": {
+      "user_id": "user_2NfYZ0123",
+      "first_name": "Alan",
+      "last_name": "Turing",
+      "identifier": "alan@example.com"
+    },
+    "created_at": 1694500000000
+  }
+]

@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/logo-dark.png">
+    <img alt="Authio" src=".github/logo-light.png" width="220">
+  </picture>
+</p>
+
 # authio (CLI)
 
 The official Authio CLI — Stripe-quality DX for the platform.

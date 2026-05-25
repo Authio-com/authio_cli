@@ -82,8 +82,8 @@ var livePullers = map[string]LivePuller{
 	"workos":   workosLivePuller{},
 	"stytch":   stytchLivePuller{},
 	"descope":  descopeLivePuller{},
-	"cognito":  notLiveYetPuller{name: "cognito"},
-	"firebase": notLiveYetPuller{name: "firebase"},
+	"cognito":  cognitoLivePuller{},
+	"firebase": firebaseLivePuller{},
 	"supabase": supabaseLivePuller{},
 }
 

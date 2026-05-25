@@ -55,7 +55,7 @@ Reads an Auth0 user-export (JSON array or NDJSON), POSTs each user to `/v1/users
 
 Authio never imports password hashes. Existing users get a magic-link enrollment invitation on their first attempted sign-in.
 
-`clerk`, `cognito`, `firebase`, `supabase` are stubbed and return a clear "not implemented yet" with a roadmap pointer.
+Live importers are available for `auth0`, `clerk`, `cognito`, `firebase`, and `supabase` (via `authio migrate run --live`). File-based `--input` bundles work for every provider.
 
 ### `authio logs tail`
 

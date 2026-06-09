@@ -32,6 +32,8 @@ type PlanRunner struct {
 	// migrate worker to send X-Authio-Worker + X-Authio-Project-Id so
 	// the management-api accepts the call without a real API key.
 	ExtraHeaders map[string]string
+	// TargetOrganizationID pins memberships to an existing Authio org.
+	TargetOrganizationID string
 	// RecordErrors collects per-record failures for the dashboard.
 	RecordErrors []RecordError
 }
@@ -71,6 +73,16 @@ func (p *PlanRunner) Run(ctx context.Context, plan *ImportPlan) (PlanStats, erro
 	// 1) Orgs first — we need orgID for memberships + SCIM.
 	// =====================================================
 	orgIDByExt := map[string]string{}
+	if p.TargetOrganizationID != "" {
+		if p.DryRun {
+			orgIDByExt[TargetOrgExternalID] = p.TargetOrganizationID
+		} else if err := p.assertTargetOrg(ctx, p.TargetOrganizationID); err != nil {
+			return stats, err
+		} else {
+			orgIDByExt[TargetOrgExternalID] = p.TargetOrganizationID
+			p.progress("org", TargetOrgExternalID, "using existing "+p.TargetOrganizationID)
+		}
+	}
 	for _, o := range plan.Orgs {
 		if p.DryRun {
 			stats.OrgsCreated++
@@ -305,6 +317,18 @@ func (p *PlanRunner) doJSON(ctx context.Context, method, path string, body any) 
 	raw, _ := io.ReadAll(resp.Body)
 	_ = resp.Body.Close()
 	return resp, raw, nil
+}
+
+func (p *PlanRunner) assertTargetOrg(ctx context.Context, orgID string) error {
+	path := fmt.Sprintf("/v1/organizations/%s", orgID)
+	resp, raw, err := p.doJSON(ctx, http.MethodGet, path, nil)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode == http.StatusOK {
+		return nil
+	}
+	return fmt.Errorf("target organization %s not found: %d %s", orgID, resp.StatusCode, strings.TrimSpace(string(raw)))
 }
 
 func (p *PlanRunner) upsertOrg(ctx context.Context, o OrgRecord) (string, bool, error) {

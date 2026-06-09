@@ -68,6 +68,10 @@ type LiveOptions struct {
 	// ProgressFn, if set, is called every batch with (kind, count). It
 	// powers the import_jobs.progress JSONB updates.
 	ProgressFn func(kind string, completed int)
+	// TargetOrganizationID pins memberships to an existing Authio org.
+	TargetOrganizationID string
+	// SourceWorkOSOrganizationID filters WorkOS live pulls to one org.
+	SourceWorkOSOrganizationID string
 }
 
 // LivePuller is what each provider implements.

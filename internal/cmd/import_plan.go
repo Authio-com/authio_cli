@@ -94,6 +94,10 @@ type PlanStats struct {
 	Warnings               int `json:"warnings"`
 }
 
+// TargetOrgExternalID is the sentinel org external_id used when
+// target_organization_id pins imports to an existing Authio org.
+const TargetOrgExternalID = "authio:target-org"
+
 // PlanOptions modifies how a parser builds the plan.
 type PlanOptions struct {
 	// OrgsTablePath, when non-empty, is a path to a JSON file describing
@@ -113,6 +117,12 @@ type PlanOptions struct {
 	// (Supabase without --orgs-table, Firebase, Consumer Stytch). All
 	// users land under this org as members.
 	DefaultOrgName string
+	// TargetOrganizationID pins every imported membership (and SSO/SCIM)
+	// to this existing Authio org. WorkOS org rows are not created.
+	TargetOrganizationID string
+	// SourceWorkOSOrganizationID limits the import to one WorkOS org's
+	// users/memberships when set (optional).
+	SourceWorkOSOrganizationID string
 }
 
 // PlanParser is what each "production" importer implements. It reads the

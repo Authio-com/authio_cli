@@ -154,8 +154,13 @@ func (workosPlanParser) ParsePlan(ctx context.Context, r io.Reader, opts PlanOpt
 		plan.addWarning("workos: merged %d duplicate-email users into %d Authio users with multi-org memberships", users.merged, len(plan.Users))
 	}
 
+	sourceOrgFilter := strings.TrimSpace(opts.SourceWorkOSOrganizationID)
+
 	// ---- memberships ----
 	for _, m := range bundle.OrganizationMemberships {
+		if sourceOrgFilter != "" && m.OrganizationID != sourceOrgFilter {
+			continue
+		}
 		email, ok := userIDToEmail[m.UserID]
 		if !ok {
 			plan.addWarning("workos: membership %s references unknown user %s", m.ID, m.UserID)
@@ -192,6 +197,9 @@ func (workosPlanParser) ParsePlan(ctx context.Context, r io.Reader, opts PlanOpt
 
 	// ---- SSO connections ----
 	for _, s := range bundle.SsoConnections {
+		if sourceOrgFilter != "" && s.OrganizationID != sourceOrgFilter {
+			continue
+		}
 		orgExt, ok := orgByID[s.OrganizationID]
 		if !ok {
 			plan.addWarning("workos: sso connection %s references unknown org %s", s.ID, s.OrganizationID)
@@ -214,6 +222,9 @@ func (workosPlanParser) ParsePlan(ctx context.Context, r io.Reader, opts PlanOpt
 
 	// ---- SCIM directories ----
 	for _, d := range bundle.Directories {
+		if sourceOrgFilter != "" && d.OrganizationID != sourceOrgFilter {
+			continue
+		}
 		orgExt, ok := orgByID[d.OrganizationID]
 		if !ok {
 			plan.addWarning("workos: directory %s references unknown org %s", d.ID, d.OrganizationID)
@@ -225,5 +236,81 @@ func (workosPlanParser) ParsePlan(ctx context.Context, r io.Reader, opts PlanOpt
 		})
 	}
 
+	if opts.TargetOrganizationID != "" {
+		applyWorkOSTargetScope(plan, opts, sourceOrgFilter)
+		plan.SsoConnections = remapSsoToTarget(plan.SsoConnections)
+		plan.ScimDirectories = remapScimToTarget(plan.ScimDirectories)
+	}
+
 	return plan, nil
+}
+
+func applyWorkOSTargetScope(
+	plan *ImportPlan,
+	opts PlanOptions,
+	sourceOrgFilter string,
+) {
+	if opts.TargetOrganizationID == "" {
+		return
+	}
+	if sourceOrgFilter != "" {
+		keepUsers := map[string]struct{}{}
+		for _, m := range plan.Memberships {
+			keepUsers[m.UserExternalID] = struct{}{}
+		}
+		filtered := plan.Users[:0]
+		for _, u := range plan.Users {
+			if _, ok := keepUsers[u.ExternalID]; ok {
+				filtered = append(filtered, u)
+			}
+		}
+		plan.Users = filtered
+		plan.addWarning(
+			"workos: source org %s — importing %d users into target Authio org %s",
+			sourceOrgFilter,
+			len(plan.Users),
+			opts.TargetOrganizationID,
+		)
+	} else {
+		plan.addWarning(
+			"workos: importing users into existing Authio org %s (no new orgs will be created)",
+			opts.TargetOrganizationID,
+		)
+	}
+	plan.Orgs = nil
+	seenUser := map[string]struct{}{}
+	deduped := plan.Memberships[:0]
+	for _, m := range plan.Memberships {
+		m.OrgExternalID = TargetOrgExternalID
+		if _, ok := seenUser[m.UserExternalID]; ok {
+			continue
+		}
+		seenUser[m.UserExternalID] = struct{}{}
+		deduped = append(deduped, m)
+	}
+	plan.Memberships = deduped
+}
+
+func remapSsoToTarget(conns []SsoConnectionRecord) []SsoConnectionRecord {
+	if len(conns) == 0 {
+		return conns
+	}
+	out := make([]SsoConnectionRecord, len(conns))
+	for i, c := range conns {
+		c.OrgExternalID = TargetOrgExternalID
+		out[i] = c
+	}
+	return out
+}
+
+func remapScimToTarget(dirs []ScimDirectoryRecord) []ScimDirectoryRecord {
+	if len(dirs) == 0 {
+		return dirs
+	}
+	out := make([]ScimDirectoryRecord, len(dirs))
+	for i, d := range dirs {
+		d.OrgExternalID = TargetOrgExternalID
+		out[i] = d
+	}
+	return out
 }

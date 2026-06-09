@@ -259,13 +259,7 @@ func migrateRun(args []string) error {
 		pushProgress(false)
 	}
 
-	plan, err := puller.PullLive(ctx, creds, LiveOptions{ProgressFn: progFn})
-	if err != nil {
-		_ = wc.finishJob(ctx, job.ID, "failed", nil, err.Error(), nil)
-		return err
-	}
-	pushProgress(true)
-
+	liveOpts := LiveOptions{ProgressFn: progFn}
 	runner := &PlanRunner{
 		APIURL:   wc.BaseURL,
 		APIKey:   wc.Token,
@@ -277,6 +271,20 @@ func migrateRun(args []string) error {
 			"X-Authio-Project-Id": job.ProjectID,
 		},
 	}
+	if job.TargetOrganizationID != nil && *job.TargetOrganizationID != "" {
+		liveOpts.TargetOrganizationID = *job.TargetOrganizationID
+		runner.TargetOrganizationID = *job.TargetOrganizationID
+	}
+	if job.SourceWorkOSOrganizationID != nil && *job.SourceWorkOSOrganizationID != "" {
+		liveOpts.SourceWorkOSOrganizationID = *job.SourceWorkOSOrganizationID
+	}
+
+	plan, err := puller.PullLive(ctx, creds, liveOpts)
+	if err != nil {
+		_ = wc.finishJob(ctx, job.ID, "failed", nil, err.Error(), nil)
+		return err
+	}
+	pushProgress(true)
 	stats, err := runner.Run(ctx, plan)
 	if err != nil {
 		_ = wc.finishJob(ctx, job.ID, "failed", &stats, err.Error(), runner.RecordErrors)
@@ -324,12 +332,14 @@ type workerClient struct {
 }
 
 type jobRecord struct {
-	ID           string  `json:"id"`
-	ProjectID    string  `json:"project_id"`
-	Provider     string  `json:"provider"`
-	Source       string  `json:"source"`
-	CredentialID *string `json:"credential_id"`
-	Status       string  `json:"status"`
+	ID                         string  `json:"id"`
+	ProjectID                  string  `json:"project_id"`
+	Provider                   string  `json:"provider"`
+	Source                     string  `json:"source"`
+	CredentialID               *string `json:"credential_id"`
+	Status                     string  `json:"status"`
+	TargetOrganizationID       *string `json:"target_organization_id"`
+	SourceWorkOSOrganizationID *string `json:"source_workos_organization_id"`
 }
 
 type credRecord struct {

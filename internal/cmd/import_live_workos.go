@@ -93,13 +93,20 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 		return nil, fmt.Errorf("workos users: %w", err)
 	}
 
+	sourceOrgFilter := strings.TrimSpace(opts.SourceWorkOSOrganizationID)
+
 	// Organizations
 	if err := pull("/organizations", nil, func(raw json.RawMessage) error {
 		var page []workosOrganization
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err
 		}
-		bundle.Organizations = append(bundle.Organizations, page...)
+		for _, o := range page {
+			if sourceOrgFilter != "" && o.ID != sourceOrgFilter {
+				continue
+			}
+			bundle.Organizations = append(bundle.Organizations, o)
+		}
 		progress("orgs", len(bundle.Organizations))
 		return nil
 	}); err != nil {
@@ -156,5 +163,9 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 	if err != nil {
 		return nil, err
 	}
-	return workosPlanParser{}.ParsePlan(ctx, strings.NewReader(string(buf)), PlanOptions{MergeDuplicateEmails: true})
+	return workosPlanParser{}.ParsePlan(ctx, strings.NewReader(string(buf)), PlanOptions{
+		MergeDuplicateEmails:         true,
+		TargetOrganizationID:       opts.TargetOrganizationID,
+		SourceWorkOSOrganizationID: sourceOrgFilter,
+	})
 }

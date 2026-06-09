@@ -31,7 +31,8 @@ type workosPlanParser struct{}
 func (workosPlanParser) Name() string { return "workos" }
 func (workosPlanParser) Help() string {
 	return `workos: a JSON bundle assembled from the WorkOS Admin API:
-  GET /users, GET /organizations, GET /organization_memberships,
+  GET /users, GET /organizations,
+  GET /organization_memberships?organization_id=<org_id> (once per org),
   GET /connections, GET /directories.
 
 Wrap them as:

@@ -38,17 +38,24 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 
 	// Helper to paginate WorkOS list endpoints (their cursor field is
 	// `after` and the response wraps in `{data:[…], list_metadata:{after}}`).
-	pull := func(path string, into func(json.RawMessage) error) error {
+	pull := func(path string, extraQuery url.Values, into func(json.RawMessage) error) error {
 		after := ""
 		pages := 0
 		for {
 			if opts.MaxPages > 0 && pages >= opts.MaxPages {
 				return nil
 			}
-			u := fmt.Sprintf("%s%s?limit=100", base, path)
+			q := url.Values{}
+			q.Set("limit", "100")
 			if after != "" {
-				u += "&after=" + url.QueryEscape(after)
+				q.Set("after", after)
 			}
+			for k, vs := range extraQuery {
+				for _, v := range vs {
+					q.Add(k, v)
+				}
+			}
+			u := fmt.Sprintf("%s%s?%s", base, path, q.Encode())
 			body, err := bearerGet(ctx, h, u, key)
 			if err != nil {
 				return err
@@ -74,7 +81,7 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 	}
 
 	// Users
-	if err := pull("/user_management/users", func(raw json.RawMessage) error {
+	if err := pull("/user_management/users", nil, func(raw json.RawMessage) error {
 		var page []workosUser
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err
@@ -87,7 +94,7 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 	}
 
 	// Organizations
-	if err := pull("/organizations", func(raw json.RawMessage) error {
+	if err := pull("/organizations", nil, func(raw json.RawMessage) error {
 		var page []workosOrganization
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err
@@ -99,21 +106,25 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 		return nil, fmt.Errorf("workos organizations: %w", err)
 	}
 
-	// Memberships
-	if err := pull("/user_management/organization_memberships", func(raw json.RawMessage) error {
-		var page []workosMembership
-		if err := json.Unmarshal(raw, &page); err != nil {
-			return err
+	// Memberships — WorkOS requires organization_id or user_id; list per org.
+	for _, org := range bundle.Organizations {
+		q := url.Values{}
+		q.Set("organization_id", org.ID)
+		if err := pull("/user_management/organization_memberships", q, func(raw json.RawMessage) error {
+			var page []workosMembership
+			if err := json.Unmarshal(raw, &page); err != nil {
+				return err
+			}
+			bundle.OrganizationMemberships = append(bundle.OrganizationMemberships, page...)
+			progress("memberships", len(bundle.OrganizationMemberships))
+			return nil
+		}); err != nil {
+			return nil, fmt.Errorf("workos memberships (org %s): %w", org.ID, err)
 		}
-		bundle.OrganizationMemberships = append(bundle.OrganizationMemberships, page...)
-		progress("memberships", len(bundle.OrganizationMemberships))
-		return nil
-	}); err != nil {
-		return nil, fmt.Errorf("workos memberships: %w", err)
 	}
 
 	// SSO connections
-	if err := pull("/connections", func(raw json.RawMessage) error {
+	if err := pull("/connections", nil, func(raw json.RawMessage) error {
 		var page []workosSsoConnection
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err
@@ -126,7 +137,7 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 	}
 
 	// SCIM directories
-	if err := pull("/directories", func(raw json.RawMessage) error {
+	if err := pull("/directories", nil, func(raw json.RawMessage) error {
 		var page []workosDirectory
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err

@@ -261,7 +261,7 @@ func migrateRun(args []string) error {
 
 	plan, err := puller.PullLive(ctx, creds, LiveOptions{ProgressFn: progFn})
 	if err != nil {
-		_ = wc.finishJob(ctx, job.ID, "failed", nil, err.Error())
+		_ = wc.finishJob(ctx, job.ID, "failed", nil, err.Error(), nil)
 		return err
 	}
 	pushProgress(true)
@@ -279,14 +279,14 @@ func migrateRun(args []string) error {
 	}
 	stats, err := runner.Run(ctx, plan)
 	if err != nil {
-		_ = wc.finishJob(ctx, job.ID, "failed", &stats, err.Error())
+		_ = wc.finishJob(ctx, job.ID, "failed", &stats, err.Error(), runner.RecordErrors)
 		return err
 	}
 	status := "succeeded"
 	if stats.Errored > 0 {
 		status = "partial"
 	}
-	if err := wc.finishJob(ctx, job.ID, status, &stats, ""); err != nil {
+	if err := wc.finishJob(ctx, job.ID, status, &stats, "", runner.RecordErrors); err != nil {
 		return err
 	}
 	return nil
@@ -411,13 +411,16 @@ func (w *workerClient) appendLog(ctx context.Context, jobID, line string) error 
 		map[string]any{"line": line}, nil)
 }
 
-func (w *workerClient) finishJob(ctx context.Context, jobID, status string, stats *PlanStats, errMsg string) error {
+func (w *workerClient) finishJob(ctx context.Context, jobID, status string, stats *PlanStats, errMsg string, recordErrors []RecordError) error {
 	body := map[string]any{"status": status}
 	if stats != nil {
 		body["stats"] = stats
 	}
 	if errMsg != "" {
 		body["error"] = errMsg
+	}
+	if len(recordErrors) > 0 {
+		body["record_errors"] = recordErrors
 	}
 	return w.do(ctx, http.MethodPost, "/v1/migrate-worker/jobs/"+jobID+"/finish", body, nil)
 }

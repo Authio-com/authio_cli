@@ -32,6 +32,15 @@ type PlanRunner struct {
 	// migrate worker to send X-Authio-Worker + X-Authio-Project-Id so
 	// the management-api accepts the call without a real API key.
 	ExtraHeaders map[string]string
+	// RecordErrors collects per-record failures for the dashboard.
+	RecordErrors []RecordError
+}
+
+// RecordError is one failed/skipped import row surfaced to the wizard.
+type RecordError struct {
+	Kind string `json:"kind"`
+	Key  string `json:"key"`
+	Msg  string `json:"msg"`
 }
 
 // Run applies the plan and returns the final stats. The plan's Stats
@@ -250,6 +259,9 @@ func (p *PlanRunner) emit(payload map[string]any) {
 }
 
 func (p *PlanRunner) progress(kind, key, msg string) {
+	if strings.HasPrefix(msg, "error:") || strings.HasPrefix(msg, "skip —") {
+		p.RecordErrors = append(p.RecordErrors, RecordError{Kind: kind, Key: key, Msg: msg})
+	}
 	if p.EmitJSON {
 		b, _ := json.Marshal(map[string]any{"event": "progress", "kind": kind, "key": key, "msg": msg})
 		fmt.Fprintln(p.Out, string(b))

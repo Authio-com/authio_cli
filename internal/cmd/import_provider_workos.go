@@ -32,7 +32,7 @@ func (workosPlanParser) Name() string { return "workos" }
 func (workosPlanParser) Help() string {
 	return `workos: a JSON bundle assembled from the WorkOS Admin API:
   GET /users, GET /organizations, GET /organization_memberships,
-  GET /sso/connections, GET /directories.
+  GET /connections, GET /directories.
 
 Wrap them as:
   {"users":[...],"organizations":[...],"organization_memberships":[...],

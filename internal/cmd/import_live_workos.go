@@ -113,7 +113,7 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 	}
 
 	// SSO connections
-	if err := pull("/sso/connections", func(raw json.RawMessage) error {
+	if err := pull("/connections", func(raw json.RawMessage) error {
 		var page []workosSsoConnection
 		if err := json.Unmarshal(raw, &page); err != nil {
 			return err

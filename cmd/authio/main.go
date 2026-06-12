@@ -19,7 +19,10 @@ import (
 	"github.com/tcast/authio_cli/internal/cmd"
 )
 
-const version = "0.1.0-alpha.0"
+// version is overridable at build time via
+// `-ldflags "-X main.version=<tag>"` (see scripts/install.sh + the
+// release workflow). Defaults to the in-tree dev version.
+var version = "0.1.0-alpha.0"
 
 func main() {
 	if err := run(os.Args[1:]); err != nil {
@@ -36,6 +39,14 @@ func run(args []string) error {
 	switch args[0] {
 	case "login":
 		return cmd.Login(args[1:])
+	case "whoami":
+		return cmd.Whoami(args[1:])
+	case "doctor":
+		return cmd.Doctor(version, args[1:])
+	case "env":
+		return cmd.Env(args[1:])
+	case "listen":
+		return cmd.Listen(args[1:])
 	case "init":
 		return cmd.Init(args[1:])
 	case "dev":
@@ -68,10 +79,14 @@ USAGE
 
 COMMANDS
   login                Authenticate this CLI to your Authio account
+  whoami               Show the active environment, tenant, and key
+  doctor               Diagnose your local setup (--json for machine output)
+  env <subcommand>     Show/list/switch the active environment (list|use)
+  listen --forward URL Forward live events to a local endpoint (Stripe-style)
   init                 Scaffold an example app linked to your project
   dev                  Run a local auth-core proxy with mock JWKS
   logs tail            Tail audit + webhook delivery logs
-  webhook listen URL   Tunnel webhook deliveries to a local URL
+  webhook listen URL   (legacy) ngrok workflow — prefer 'authio listen'
   import <provider>    Bulk-import users from another auth platform
                        Providers: auth0, clerk, cognito, firebase, supabase
   migrate <subcommand> Live-credentials importer (run|plan).

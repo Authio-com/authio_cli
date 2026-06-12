@@ -1,0 +1,57 @@
+name: release
+
+# Builds cross-platform binaries, checksums, and a GitHub Release whenever
+# a v* tag is pushed. The install.sh script and the Homebrew formula both
+# consume the asset naming convention produced here:
+#
+#   authio_<version>_<os>_<arch>.tar.gz   (contains the `authio` binary)
+#   authio_<version>_checksums.txt        (sha256 of every archive)
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: "1.25.11"
+          cache: true
+
+      - name: Build release artifacts
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          version="${tag#v}"
+          mkdir -p dist
+          targets="darwin/amd64 darwin/arm64 linux/amd64 linux/arm64"
+          for t in $targets; do
+            os="${t%/*}"
+            arch="${t#*/}"
+            echo "building $os/$arch"
+            CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" \
+              go build -trimpath \
+                -ldflags "-s -w -X main.version=${version}" \
+                -o "dist/authio" ./cmd/authio
+            tar -C dist -czf "dist/authio_${version}_${os}_${arch}.tar.gz" authio
+            rm -f dist/authio
+          done
+          cd dist
+          sha256sum authio_*.tar.gz > "authio_${version}_checksums.txt"
+          echo "--- checksums ---"
+          cat "authio_${version}_checksums.txt"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2.2.1
+        with:
+          files: |
+            dist/authio_*.tar.gz
+            dist/authio_*_checksums.txt
+          generate_release_notes: true

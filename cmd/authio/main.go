@@ -57,6 +57,8 @@ func run(args []string) error {
 		return cmd.Webhook(args[1:])
 	case "import":
 		return cmd.Import(args[1:])
+	case "users":
+		return cmd.Users(args[1:])
 	case "migrate":
 		return cmd.Migrate(args[1:])
 	case "bootstrap":
@@ -89,6 +91,7 @@ COMMANDS
   webhook listen URL   (legacy) ngrok workflow — prefer 'authio listen'
   import <provider>    Bulk-import users from another auth platform
                        Providers: auth0, clerk, cognito, firebase, supabase
+  users <subcommand>   User utilities (import from CSV/JSON)
   migrate <subcommand> Live-credentials importer (run|plan).
                        Used by the dashboard wizard's API-token path.
   bootstrap mint       Mint a single-use bootstrap token (admin only)

@@ -110,7 +110,7 @@ func Login(args []string) error {
 			fmt.Println()
 			fmt.Println("  ✓ Authorized.")
 			fmt.Printf("  Saved %s\n", store.Path)
-			fmt.Printf("  Project: %s\n", projectID)
+			fmt.Printf("  Environment: %s  (API: project_id)\n", projectID)
 			return nil
 		default:
 			return fmt.Errorf("unexpected status: %s", status)

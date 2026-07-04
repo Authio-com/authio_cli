@@ -61,7 +61,7 @@ func Whoami(args []string) error {
 	fmt.Printf("  Tenant:       %s\n", orDash(me.Tenant.Name))
 	fmt.Printf("  Environment:  %s (%s)\n", describeEnv(me.Environment), me.Name)
 	fmt.Printf("  Key:          %s (%s)\n", maskKeyShort(p.APIKey), familyLabel(family))
-	fmt.Printf("  Project ID:   %s\n", me.ID)
+	fmt.Printf("  Environment ID:   %s  (API field: project_id)\n", me.ID)
 	fmt.Printf("  API:          %s\n", p.APIURL)
 	fmt.Println()
 	return nil

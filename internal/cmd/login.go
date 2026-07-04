@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	defaultMgmtAPI  = "https://authiomanagement-api-production.up.railway.app"
-	defaultAuthCore = "https://authioauth-core-production.up.railway.app"
+	defaultMgmtAPI  = "http://localhost:8080"
+	defaultAuthCore = "http://localhost:8081"
 )
 
 // Login runs the device-code flow against the management-api.
@@ -110,7 +110,7 @@ func Login(args []string) error {
 			fmt.Println()
 			fmt.Println("  ✓ Authorized.")
 			fmt.Printf("  Saved %s\n", store.Path)
-			fmt.Printf("  Project: %s\n", projectID)
+			fmt.Printf("  Environment: %s  (API: project_id)\n", projectID)
 			return nil
 		default:
 			return fmt.Errorf("unexpected status: %s", status)

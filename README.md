@@ -62,7 +62,7 @@ tenant, environment, key family (test/live) and the API it targets. Add
   Tenant:       Acme
   Environment:  Staging (My App — Staging)
   Key:          sk_test_…a1b2 (test key)
-  Project ID:   proj_…
+  Project ID:   proj_…  (environment ID; API field project_id)
   API:          https://authiomanagement-api-production.up.railway.app
 ```
 
@@ -192,7 +192,7 @@ project_id = "proj_staging_..."
 ## Source
 
 - https://github.com/authio-com/authio_cli
-- https://authiodocs-production.up.railway.app
+- https://docs.authio.com
 
 ## License
 

@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	defaultMgmtAPI  = "https://authiomanagement-api-production.up.railway.app"
-	defaultAuthCore = "https://authioauth-core-production.up.railway.app"
+	defaultMgmtAPI  = "http://localhost:8080"
+	defaultAuthCore = "http://localhost:8081"
 )
 
 // Login runs the device-code flow against the management-api.

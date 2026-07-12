@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -66,29 +68,54 @@ type apiResult struct {
 // error statuses come back in apiResult.status so callers can render
 // them as warnings rather than hard failures.
 func apiGet(p *credentials.Profile, path string) (*apiResult, error) {
+	return apiRequest(p, http.MethodGet, path, nil)
+}
+
+// apiPost performs an authenticated POST with an optional JSON body.
+func apiPost(p *credentials.Profile, path string, body any) (*apiResult, error) {
+	return apiRequest(p, http.MethodPost, path, body)
+}
+
+// apiDelete performs an authenticated DELETE.
+func apiDelete(p *credentials.Profile, path string) (*apiResult, error) {
+	return apiRequest(p, http.MethodDelete, path, nil)
+}
+
+func apiRequest(p *credentials.Profile, method, path string, body any) (*apiResult, error) {
 	base := strings.TrimRight(p.APIURL, "/")
 	if base == "" {
 		base = defaultMgmtAPI
 	}
-	req, err := http.NewRequest(http.MethodGet, base+path, nil)
+	var rdr io.Reader
+	if body != nil {
+		b, err := json.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+		rdr = bytes.NewReader(b)
+	}
+	req, err := http.NewRequest(method, base+path, rdr)
 	if err != nil {
 		return nil, err
 	}
 	req.Header.Set("Authorization", "Bearer "+p.APIKey)
 	req.Header.Set("User-Agent", cliUserAgent)
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	start := time.Now()
 	resp, err := sharedHTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
+	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
 	if err != nil {
 		return nil, err
 	}
 	return &apiResult{
 		status:  resp.StatusCode,
-		body:    body,
+		body:    respBody,
 		header:  resp.Header,
 		latency: time.Since(start),
 	}, nil
@@ -140,6 +167,7 @@ type projectMe struct {
 	Name        string `json:"name"`
 	Environment string `json:"environment"`
 	CreatedAt   string `json:"created_at"`
+	APIKeyID    string `json:"api_key_id"`
 	Tenant      struct {
 		Name string `json:"name"`
 	} `json:"tenant"`

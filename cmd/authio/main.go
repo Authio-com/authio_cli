@@ -2,6 +2,9 @@
 //
 //	authio login                          OAuth + passkey login to your account
 //	authio init                           Scaffold an example app linked to your project
+//	authio keys rotate                    Create a replacement sk_ and revoke the old one
+//	authio orgs create                    Create an organization
+//	authio webhooks create                Register a webhook endpoint
 //	authio dev                             Local proxy with mock JWKS for offline dev
 //	authio logs tail                      Tail audit + delivery logs
 //	authio webhook listen <url>           Tunnel webhooks to a local URL (Stripe-listen-style)
@@ -45,6 +48,12 @@ func run(args []string) error {
 		return cmd.Doctor(version, args[1:])
 	case "env":
 		return cmd.Env(args[1:])
+	case "keys":
+		return cmd.Keys(args[1:])
+	case "orgs", "organizations":
+		return cmd.Orgs(args[1:])
+	case "webhooks":
+		return cmd.Webhooks(args[1:])
 	case "listen":
 		return cmd.Listen(args[1:])
 	case "init":
@@ -84,6 +93,9 @@ COMMANDS
   whoami               Show the active environment, tenant, and key
   doctor               Diagnose your local setup (--json for machine output)
   env <subcommand>     Show/list/switch the active environment (list|use)
+  keys rotate          Create a replacement sk_ and revoke the previous key
+  orgs create          Create an organization (--name required)
+  webhooks create      Register a webhook endpoint (--url required)
   listen --forward URL Forward live events to a local endpoint (Stripe-style)
   init                 Scaffold an example app linked to your project
   dev                  Run a local auth-core proxy with mock JWKS

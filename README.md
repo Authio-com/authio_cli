@@ -166,6 +166,44 @@ Shows you the curl command to query audit events directly. Live streaming lands 
 Documents the `ngrok http` workflow. Prefer **`authio listen`** above,
 which forwards events to your local endpoint with no tunnel required.
 
+### `authio orgs create`
+
+```bash
+authio orgs create --name Acme --slug acme --domain acme.com
+```
+
+Creates an organization via `POST /v1/organizations`. Optional `--json` for
+machine-readable output.
+
+### `authio webhooks create`
+
+```bash
+authio webhooks create --url https://api.example.com/webhooks/authio \
+  --events user.created,session.created
+```
+
+Registers a webhook endpoint via `POST /v1/webhooks`. Defaults to `--events *`
+when omitted. Optional `--org org_…`, `--description`, `--json`.
+
+Distinct from the legacy `authio webhook listen` (ngrok helper) and from
+`authio listen` (local event forwarder).
+
+### `authio keys rotate`
+
+```bash
+authio keys rotate --name cli-rotated
+```
+
+Mints a replacement workspace `sk_` key, writes it to the active profile in
+`~/.authio/credentials.toml`, then revokes the previous key.
+
+### Redirect URIs / allowed origins
+
+There is no CLI subcommand yet. Provision per-customer domains with the
+Management API (`POST /v1/redirect-uris`, `POST /v1/allowed-origins`) using a
+workspace `sk_` key — see
+https://docs.authio.com/recipes/manage-with-api-key#multi-tenant-custom-domains.
+
 ### `authio version`
 
 ```bash

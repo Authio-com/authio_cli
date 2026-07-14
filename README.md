@@ -47,9 +47,13 @@ Runs the OAuth-style device-code flow:
 1. Mints a `(user_code, device_code)` pair on the management-api.
 2. Prints the code, opens the dashboard at `/cli/login?code=…` in your browser.
 3. You approve in the dashboard → a fresh `sk_live_` key is minted on your project (named `cli:<code>`).
-4. The CLI receives the secret on its next poll and stores it in `~/.authio/credentials.toml` (mode `0600`).
+4. The CLI receives the secret on its next poll and stores it atomically in `~/.authio/credentials.toml` (mode `0600`).
 
-Pass `--no-browser` to skip the auto-open. Pass `--api-url https://...` to point at a non-default management-api.
+Login uses Authio's hosted production management API by default. Pass
+`--no-browser` to skip the auto-open, or `--profile <name>` to save into a
+named profile without replacing `[default]`. Local development is opt-in via
+`--dev` or `AUTHIO_CLI_DEV=1`; explicit endpoint overrides are available as
+`--api-url` and `--auth-core-url`.
 
 ### `authio whoami`
 
@@ -213,7 +217,11 @@ authio 0.1.0-alpha.0
 
 ## Profiles
 
-`~/.authio/credentials.toml` supports multiple profiles. Switch per-command with `--profile <name>`, or set a default with `authio env use <name>` (persisted in `~/.authio/config.toml`, separate from the secret-bearing credentials file). The first `authio login` writes `[default]`.
+`~/.authio/credentials.toml` supports multiple profiles. Create or update one
+with `authio login --profile <name>`, switch per-command with `--profile
+<name>`, or set a default with `authio env use <name>` (persisted in
+`~/.authio/config.toml`, separate from the secret-bearing credentials file).
+Login writes `[default]` only when `--profile` is omitted.
 
 ```toml
 [default]

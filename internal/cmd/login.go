@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -16,27 +17,71 @@ import (
 )
 
 const (
-	defaultMgmtAPI  = "http://localhost:8080"
-	defaultAuthCore = "http://localhost:8081"
+	defaultMgmtAPI       = "https://authiomanagement-api-production.up.railway.app"
+	defaultAuthCore      = "https://authioauth-core-production.up.railway.app"
+	localMgmtAPI         = "http://localhost:8080"
+	localAuthCore        = "http://localhost:8081"
+	cliDevEnvironmentVar = "AUTHIO_CLI_DEV"
 )
+
+type loginOptions struct {
+	apiURL      string
+	authCoreURL string
+	profile     string
+	noBrowser   bool
+}
+
+func parseLoginOptions(args []string) (loginOptions, error) {
+	opts := loginOptions{
+		apiURL:      defaultMgmtAPI,
+		authCoreURL: defaultAuthCore,
+		profile:     "default",
+	}
+	if os.Getenv(cliDevEnvironmentVar) == "1" || strings.EqualFold(os.Getenv(cliDevEnvironmentVar), "true") {
+		opts.apiURL = localMgmtAPI
+		opts.authCoreURL = localAuthCore
+	}
+	for i := 0; i < len(args); i++ {
+		switch args[i] {
+		case "--dev":
+			opts.apiURL = localMgmtAPI
+			opts.authCoreURL = localAuthCore
+		case "--api-url":
+			if i+1 >= len(args) {
+				return loginOptions{}, errors.New("--api-url requires a value")
+			}
+			opts.apiURL = args[i+1]
+			i++
+		case "--auth-core-url":
+			if i+1 >= len(args) {
+				return loginOptions{}, errors.New("--auth-core-url requires a value")
+			}
+			opts.authCoreURL = args[i+1]
+			i++
+		case "--profile":
+			if i+1 >= len(args) {
+				return loginOptions{}, errors.New("--profile requires a value")
+			}
+			opts.profile = strings.TrimSpace(args[i+1])
+			if opts.profile == "" {
+				return loginOptions{}, errors.New("--profile requires a non-empty value")
+			}
+			i++
+		case "--no-browser":
+			opts.noBrowser = true
+		}
+	}
+	opts.apiURL = strings.TrimRight(opts.apiURL, "/")
+	opts.authCoreURL = strings.TrimRight(opts.authCoreURL, "/")
+	return opts, nil
+}
 
 // Login runs the device-code flow against the management-api.
 func Login(args []string) error {
-	apiURL := defaultMgmtAPI
-	authCoreURL := defaultAuthCore
-	noBrowser := false
-	for i := 0; i < len(args); i++ {
-		switch args[i] {
-		case "--api-url":
-			if i+1 < len(args) {
-				apiURL = args[i+1]
-				i++
-			}
-		case "--no-browser":
-			noBrowser = true
-		}
+	opts, err := parseLoginOptions(args)
+	if err != nil {
+		return err
 	}
-	apiURL = strings.TrimRight(apiURL, "/")
 
 	// 1. POST /v1/cli/device-codes
 	type startResp struct {
@@ -46,7 +91,7 @@ func Login(args []string) error {
 		ExpiresIn       int    `json:"expires_in"`
 		Interval        int    `json:"interval"`
 	}
-	resp, err := postJSON(apiURL+"/v1/cli/device-codes", nil)
+	resp, err := postJSON(opts.apiURL+"/v1/cli/device-codes", nil)
 	if err != nil {
 		return fmt.Errorf("start device flow: %w", err)
 	}
@@ -67,7 +112,7 @@ func Login(args []string) error {
 	fmt.Println()
 	fmt.Printf("  Your code: %s\n", start.UserCode)
 	fmt.Println()
-	if !noBrowser {
+	if !opts.noBrowser {
 		_ = openBrowser(start.VerificationURL)
 	}
 	fmt.Println("  Waiting for approval (Ctrl+C to cancel)...")
@@ -83,7 +128,7 @@ func Login(args []string) error {
 			return errors.New("device code expired before approval")
 		}
 		time.Sleep(time.Duration(interval) * time.Second)
-		status, projectID, secret, err := pollOnce(apiURL, start.DeviceCode)
+		status, projectID, secret, err := pollOnce(opts.apiURL, start.DeviceCode)
 		if err != nil {
 			return err
 		}
@@ -99,11 +144,11 @@ func Login(args []string) error {
 			if err != nil {
 				return err
 			}
-			if err := store.Save("default", credentials.Profile{
+			if err := store.Save(opts.profile, credentials.Profile{
 				APIKey:      secret,
 				ProjectID:   projectID,
-				APIURL:      apiURL,
-				AuthCoreURL: authCoreURL,
+				APIURL:      opts.apiURL,
+				AuthCoreURL: opts.authCoreURL,
 			}); err != nil {
 				return fmt.Errorf("save credentials: %w", err)
 			}

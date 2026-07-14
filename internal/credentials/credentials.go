@@ -49,12 +49,39 @@ func (s *Store) Save(profile string, p Profile) error {
 	if profile == "" {
 		profile = "default"
 	}
-	if err := os.MkdirAll(filepath.Dir(s.Path), dirMode); err != nil {
+	dir := filepath.Dir(s.Path)
+	if err := os.MkdirAll(dir, dirMode); err != nil {
 		return err
 	}
 	existing, _ := os.ReadFile(s.Path)
 	out := merge(string(existing), profile, p)
-	return os.WriteFile(s.Path, []byte(out), fileMode)
+	tmp, err := os.CreateTemp(dir, ".credentials-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	defer os.Remove(tmpPath)
+	if err := tmp.Chmod(fileMode); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if _, err := tmp.WriteString(out); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Sync(); err != nil {
+		_ = tmp.Close()
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpPath, s.Path); err != nil {
+		return err
+	}
+	// Rename preserves the temp file's mode, and the explicit chmod also
+	// repairs credentials files created by older releases with wider modes.
+	return os.Chmod(s.Path, fileMode)
 }
 
 func (s *Store) Load(profile string) (*Profile, error) {

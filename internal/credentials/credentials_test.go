@@ -31,6 +31,9 @@ func TestSaveAndLoad(t *testing.T) {
 func TestFileMode0600(t *testing.T) {
 	dir := t.TempDir()
 	s := &Store{Path: filepath.Join(dir, "credentials.toml")}
+	if err := os.WriteFile(s.Path, []byte("[default]\napi_key = \"old\"\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
 	if err := s.Save("default", Profile{APIKey: "sk_live_x"}); err != nil {
 		t.Fatal(err)
 	}
@@ -40,6 +43,21 @@ func TestFileMode0600(t *testing.T) {
 	}
 	if stat.Mode().Perm() != 0o600 {
 		t.Fatalf("expected mode 0600, got %o", stat.Mode().Perm())
+	}
+}
+
+func TestSaveReplacesFileAtomicallyWithoutTempArtifacts(t *testing.T) {
+	dir := t.TempDir()
+	s := &Store{Path: filepath.Join(dir, "credentials.toml")}
+	if err := s.Save("default", Profile{APIKey: "sk_live_x"}); err != nil {
+		t.Fatal(err)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(entries) != 1 || entries[0].Name() != "credentials.toml" {
+		t.Fatalf("unexpected files after atomic save: %v", entries)
 	}
 }
 

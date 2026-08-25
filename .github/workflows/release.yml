@@ -22,7 +22,7 @@ jobs:
 
       - uses: authio-com/authio_ci/actions/setup-go@442429d80b3fb0a7ddab547856da3279b3729c61
         with:
-          go-version: "1.25.11"
+          go-version: "1.25.14"
 
       - name: Build release artifacts
         run: |

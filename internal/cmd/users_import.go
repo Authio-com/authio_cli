@@ -18,16 +18,16 @@ import (
 )
 
 type usersImportFlags struct {
-	File             string
-	OrgID            string
-	ProjectID        string
-	EmailVerified    bool
-	DryRun           bool
-	DuplicatePolicy  string
-	Format           string
-	Profile          string
-	APIURL           string
-	APIKey           string
+	File            string
+	OrgID           string
+	ProjectID       string
+	EmailVerified   bool
+	DryRun          bool
+	DuplicatePolicy string
+	Format          string
+	Profile         string
+	APIURL          string
+	APIKey          string
 }
 
 type importUserRow struct {

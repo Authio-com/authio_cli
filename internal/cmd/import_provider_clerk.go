@@ -21,7 +21,7 @@ import (
 //
 // What's dropped:
 //   - password_hash (bcrypt)             -> dropped; user flagged for
-//                                           migration-pending email.
+//     migration-pending email.
 //   - totp_secret / backup_codes         -> mfa_enrolled flag preserved.
 //   - sessions                           -> users re-auth on next visit.
 type clerkPlanParser struct{}
@@ -66,25 +66,25 @@ type clerkOrgMember struct {
 }
 
 type clerkRecord struct {
-	ID                   string           `json:"id"`
-	EmailAddresses       []clerkEmail     `json:"email_addresses"`
-	PrimaryEmailID       string           `json:"primary_email_address_id"`
-	PhoneNumbers         []clerkPhone     `json:"phone_numbers"`
-	ExternalAccounts     []clerkExternal  `json:"external_accounts"`
-	OrganizationMembers  []clerkOrgMember `json:"organization_memberships"`
-	FirstName            string           `json:"first_name"`
-	LastName             string           `json:"last_name"`
-	Username             string           `json:"username"`
-	ImageURL             string           `json:"image_url"`
-	ProfileImageURL      string           `json:"profile_image_url"`
-	TwoFactorEnabled     bool             `json:"two_factor_enabled"`
-	TotpEnabled          bool             `json:"totp_enabled"`
-	BackupCodeEnabled    bool             `json:"backup_code_enabled"`
-	Banned               bool             `json:"banned"`
-	Locked               bool             `json:"locked"`
-	PublicMetadata       map[string]any   `json:"public_metadata"`
-	PrivateMetadata      map[string]any   `json:"private_metadata"`
-	UnsafeMetadata       map[string]any   `json:"unsafe_metadata"`
+	ID                  string           `json:"id"`
+	EmailAddresses      []clerkEmail     `json:"email_addresses"`
+	PrimaryEmailID      string           `json:"primary_email_address_id"`
+	PhoneNumbers        []clerkPhone     `json:"phone_numbers"`
+	ExternalAccounts    []clerkExternal  `json:"external_accounts"`
+	OrganizationMembers []clerkOrgMember `json:"organization_memberships"`
+	FirstName           string           `json:"first_name"`
+	LastName            string           `json:"last_name"`
+	Username            string           `json:"username"`
+	ImageURL            string           `json:"image_url"`
+	ProfileImageURL     string           `json:"profile_image_url"`
+	TwoFactorEnabled    bool             `json:"two_factor_enabled"`
+	TotpEnabled         bool             `json:"totp_enabled"`
+	BackupCodeEnabled   bool             `json:"backup_code_enabled"`
+	Banned              bool             `json:"banned"`
+	Locked              bool             `json:"locked"`
+	PublicMetadata      map[string]any   `json:"public_metadata"`
+	PrivateMetadata     map[string]any   `json:"private_metadata"`
+	UnsafeMetadata      map[string]any   `json:"unsafe_metadata"`
 }
 
 func (clerkPlanParser) ParsePlan(ctx context.Context, r io.Reader, opts PlanOptions) (*ImportPlan, error) {

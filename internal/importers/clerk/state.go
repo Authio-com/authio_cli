@@ -29,16 +29,16 @@ type State struct {
 
 	// Outcome counters across this state's lifetime (cumulative; survive
 	// resume).
-	UsersSeen         int `json:"users_seen"`
-	UsersImported     int `json:"users_imported"`
-	UsersExisted      int `json:"users_existed"`
-	UsersSkipped      int `json:"users_skipped"`
-	UsersErrored      int `json:"users_errored"`
-	OrgsSeen          int `json:"orgs_seen"`
-	OrgsImported      int `json:"orgs_imported"`
-	OrgsExisted       int `json:"orgs_existed"`
-	OrgsErrored       int `json:"orgs_errored"`
-	MembershipsSeen   int `json:"memberships_seen"`
+	UsersSeen          int `json:"users_seen"`
+	UsersImported      int `json:"users_imported"`
+	UsersExisted       int `json:"users_existed"`
+	UsersSkipped       int `json:"users_skipped"`
+	UsersErrored       int `json:"users_errored"`
+	OrgsSeen           int `json:"orgs_seen"`
+	OrgsImported       int `json:"orgs_imported"`
+	OrgsExisted        int `json:"orgs_existed"`
+	OrgsErrored        int `json:"orgs_errored"`
+	MembershipsSeen    int `json:"memberships_seen"`
 	MembershipsCreated int `json:"memberships_created"`
 	MembershipsExisted int `json:"memberships_existed"`
 	MembershipsErrored int `json:"memberships_errored"`

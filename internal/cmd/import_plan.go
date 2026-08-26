@@ -18,15 +18,15 @@ import (
 // (project_id, slug), memberships on (project_id, user_id, org_id),
 // scim directories on (project_id, organization_id).
 type ImportPlan struct {
-	Provider        string                  `json:"provider"`
-	Users           []UserRecord            `json:"users"`
-	Orgs            []OrgRecord             `json:"orgs"`
-	Memberships     []MembershipRecord      `json:"memberships"`
-	Identities      []IdentityRecord        `json:"identities"`
-	SsoConnections  []SsoConnectionRecord   `json:"sso_connections"`
-	ScimDirectories []ScimDirectoryRecord   `json:"scim_directories"`
-	Warnings        []string                `json:"warnings"`
-	Stats           PlanStats               `json:"stats"`
+	Provider        string                `json:"provider"`
+	Users           []UserRecord          `json:"users"`
+	Orgs            []OrgRecord           `json:"orgs"`
+	Memberships     []MembershipRecord    `json:"memberships"`
+	Identities      []IdentityRecord      `json:"identities"`
+	SsoConnections  []SsoConnectionRecord `json:"sso_connections"`
+	ScimDirectories []ScimDirectoryRecord `json:"scim_directories"`
+	Warnings        []string              `json:"warnings"`
+	Stats           PlanStats             `json:"stats"`
 }
 
 // UserRecord — a single user, deduped by email within the plan.

@@ -11,14 +11,14 @@ import (
 // descopePlanParser handles the Descope Management-API user search +
 // tenants bundle:
 //
-//   {
-//     "users":[{"loginId":"...","email":"...","verifiedEmail":true,
-//                "name":"...","userTenants":[{"tenantId":"...","tenantName":"...",
-//                                              "roleNames":["admin"]}],
-//                "customAttributes":{...},"status":"enabled"}],
-//     "tenants":[{"id":"...","name":"...","selfProvisioningDomains":["acme.com"]}],
-//     "sso":[{"tenantId":"...","name":"...","type":"saml"}]
-//   }
+//	{
+//	  "users":[{"loginId":"...","email":"...","verifiedEmail":true,
+//	             "name":"...","userTenants":[{"tenantId":"...","tenantName":"...",
+//	                                           "roleNames":["admin"]}],
+//	             "customAttributes":{...},"status":"enabled"}],
+//	  "tenants":[{"id":"...","name":"...","selfProvisioningDomains":["acme.com"]}],
+//	  "sso":[{"tenantId":"...","name":"...","type":"saml"}]
+//	}
 //
 // Descope tenants ≈ Authio orgs; multi-tenant users map 1:1 to multi-org
 // memberships in Authio.
@@ -42,21 +42,21 @@ type descopeBundle struct {
 }
 
 type descopeUser struct {
-	LoginID          string            `json:"loginId"`
-	UserID           string            `json:"userId"`
-	Email            string            `json:"email"`
-	VerifiedEmail    bool              `json:"verifiedEmail"`
-	Phone            string            `json:"phone"`
-	VerifiedPhone    bool              `json:"verifiedPhone"`
-	Name             string            `json:"name"`
-	GivenName        string            `json:"givenName"`
-	FamilyName       string            `json:"familyName"`
-	Picture          string            `json:"picture"`
-	Status           string            `json:"status"`
-	CustomAttributes map[string]any    `json:"customAttributes"`
+	LoginID          string              `json:"loginId"`
+	UserID           string              `json:"userId"`
+	Email            string              `json:"email"`
+	VerifiedEmail    bool                `json:"verifiedEmail"`
+	Phone            string              `json:"phone"`
+	VerifiedPhone    bool                `json:"verifiedPhone"`
+	Name             string              `json:"name"`
+	GivenName        string              `json:"givenName"`
+	FamilyName       string              `json:"familyName"`
+	Picture          string              `json:"picture"`
+	Status           string              `json:"status"`
+	CustomAttributes map[string]any      `json:"customAttributes"`
 	UserTenants      []descopeUserTenant `json:"userTenants"`
-	OauthSubjects    map[string]string `json:"oauth"`
-	TotpEnabled      bool              `json:"totp"`
+	OauthSubjects    map[string]string   `json:"oauth"`
+	TotpEnabled      bool                `json:"totp"`
 }
 
 type descopeUserTenant struct {
@@ -66,9 +66,9 @@ type descopeUserTenant struct {
 }
 
 type descopeTenant struct {
-	ID                       string   `json:"id"`
-	Name                     string   `json:"name"`
-	SelfProvisioningDomains  []string `json:"selfProvisioningDomains"`
+	ID                      string   `json:"id"`
+	Name                    string   `json:"name"`
+	SelfProvisioningDomains []string `json:"selfProvisioningDomains"`
 }
 
 type descopeSso struct {

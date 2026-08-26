@@ -14,13 +14,13 @@ import (
 // of users, organizations, organization_memberships, sso_connections, and
 // directories. The expected shape:
 //
-//   {
-//     "users":[ ...AuthKit user rows... ],
-//     "organizations":[ ... ],
-//     "organization_memberships":[ ... ],
-//     "sso_connections":[ ... ],
-//     "directories":[ ... ]   // SCIM directories
-//   }
+//	{
+//	  "users":[ ...AuthKit user rows... ],
+//	  "organizations":[ ... ],
+//	  "organization_memberships":[ ... ],
+//	  "sso_connections":[ ... ],
+//	  "directories":[ ... ]   // SCIM directories
+//	}
 //
 // The "1-user-1-org" WorkOS limitation: WorkOS issues a new user_id per
 // (email, organization) pair. The importer detects this and merges all
@@ -44,27 +44,27 @@ with N memberships — call out the merge count in the importer summary.`
 }
 
 type workosBundle struct {
-	Users                   []workosUser           `json:"users"`
-	Organizations           []workosOrganization   `json:"organizations"`
-	OrganizationMemberships []workosMembership     `json:"organization_memberships"`
-	SsoConnections          []workosSsoConnection  `json:"sso_connections"`
-	Directories             []workosDirectory      `json:"directories"`
+	Users                   []workosUser          `json:"users"`
+	Organizations           []workosOrganization  `json:"organizations"`
+	OrganizationMemberships []workosMembership    `json:"organization_memberships"`
+	SsoConnections          []workosSsoConnection `json:"sso_connections"`
+	Directories             []workosDirectory     `json:"directories"`
 }
 
 type workosUser struct {
-	ID            string `json:"id"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	FirstName     string `json:"first_name"`
-	LastName      string `json:"last_name"`
+	ID             string `json:"id"`
+	Email          string `json:"email"`
+	EmailVerified  bool   `json:"email_verified"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
 	ProfilePicture string `json:"profile_picture_url"`
 }
 
 type workosOrganization struct {
-	ID     string `json:"id"`
-	Name   string `json:"name"`
-	Slug   string `json:"slug"`
-	Domain string `json:"domain"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Slug    string `json:"slug"`
+	Domain  string `json:"domain"`
 	Domains []struct {
 		Domain string `json:"domain"`
 	} `json:"domains"`

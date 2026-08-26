@@ -16,9 +16,9 @@ import (
 // children-array field is the user list." The caller passes in the
 // per-record decoder; we handle the framing.
 //
-//   wrapKey == ""  top-level JSON array OR NDJSON of objects (one per line).
-//   wrapKey != ""  {"<wrapKey>": [...]}, OR a top-level array, OR NDJSON
-//                  of records — auto-detected from the leading bytes.
+//	wrapKey == ""  top-level JSON array OR NDJSON of objects (one per line).
+//	wrapKey != ""  {"<wrapKey>": [...]}, OR a top-level array, OR NDJSON
+//	               of records — auto-detected from the leading bytes.
 //
 // `decode` runs once per record on the raw JSON bytes and emits zero or
 // one SourceUser via the caller's handler. Skipped records (e.g. disabled,
@@ -430,11 +430,11 @@ func (supabaseParser) Parse(ctx context.Context, r io.Reader, emit func(SourceUs
 
 func decodeSupabaseRecord(raw json.RawMessage) (SourceUser, bool) {
 	var rec struct {
-		ID                string  `json:"id"`
-		Email             string  `json:"email"`
-		EmailConfirmedAt  *string `json:"email_confirmed_at"`
-		BannedUntil       *string `json:"banned_until"`
-		RawUserMetaData   struct {
+		ID               string  `json:"id"`
+		Email            string  `json:"email"`
+		EmailConfirmedAt *string `json:"email_confirmed_at"`
+		BannedUntil      *string `json:"banned_until"`
+		RawUserMetaData  struct {
 			FullName string `json:"full_name"`
 			Name     string `json:"name"`
 		} `json:"raw_user_meta_data"`

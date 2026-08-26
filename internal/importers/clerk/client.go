@@ -3,22 +3,22 @@
 //
 // Why this lives in internal/importers/clerk and not in internal/cmd:
 //
-//   internal/cmd/import_provider_clerk.go and import_live_clerk.go feed
-//   the migrate-wizard plan-builder + plan-runner pipeline. They emit a
-//   generic ImportPlan that flows through the cross-provider PlanRunner
-//   in internal/cmd/import_plan_runner.go.
+//	internal/cmd/import_provider_clerk.go and import_live_clerk.go feed
+//	the migrate-wizard plan-builder + plan-runner pipeline. They emit a
+//	generic ImportPlan that flows through the cross-provider PlanRunner
+//	in internal/cmd/import_plan_runner.go.
 //
-//   This package is the customer-facing, Clerk-specific surface: it
-//   takes a Clerk Secret Key and an Authio api-key, pulls users +
-//   organizations + memberships + OAuth bindings + MFA factors from
-//   Clerk's Backend API, and writes them via the management-api's bulk
-//   migration endpoints. State is checkpointed to disk so a killed run
-//   resumes. Failed rows are recorded in a CSV report.
+//	This package is the customer-facing, Clerk-specific surface: it
+//	takes a Clerk Secret Key and an Authio api-key, pulls users +
+//	organizations + memberships + OAuth bindings + MFA factors from
+//	Clerk's Backend API, and writes them via the management-api's bulk
+//	migration endpoints. State is checkpointed to disk so a killed run
+//	resumes. Failed rows are recorded in a CSV report.
 //
-//   The two paths share zero state at runtime, but transform.go's role-
-//   mapping mirrors import_provider_clerk.go's so a wizard-driven and
-//   CLI-driven import of the same Clerk tenant produce identical Authio
-//   rows.
+//	The two paths share zero state at runtime, but transform.go's role-
+//	mapping mirrors import_provider_clerk.go's so a wizard-driven and
+//	CLI-driven import of the same Clerk tenant produce identical Authio
+//	rows.
 //
 // AUTHIO_REDACT — both creds.SecretKey (Clerk) and creds.AuthioAPIKey
 // are high-risk secrets. Never log either; never include them in error

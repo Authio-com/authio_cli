@@ -24,14 +24,14 @@ import (
 // invoked by the authio_management-api when it queues a live-credentials
 // import. The CLI:
 //
-//   1. Asks the management-api for the job + the credential envelope
-//      (over HTTP, using AUTHIO_MIGRATE_WORKER_TOKEN as bearer).
-//   2. Decrypts the envelope using AUTHIO_IMPORT_CREDS_KEY.
-//   3. Runs the per-provider PullLive.
-//   4. Pipes the resulting plan through PlanRunner against the
-//      Authio management-API (using the same bearer).
-//   5. PATCHes progress / POSTs finish back to /v1/migrate/jobs/...
-//      so the dashboard's polling UI sees live updates.
+//  1. Asks the management-api for the job + the credential envelope
+//     (over HTTP, using AUTHIO_MIGRATE_WORKER_TOKEN as bearer).
+//  2. Decrypts the envelope using AUTHIO_IMPORT_CREDS_KEY.
+//  3. Runs the per-provider PullLive.
+//  4. Pipes the resulting plan through PlanRunner against the
+//     Authio management-API (using the same bearer).
+//  5. PATCHes progress / POSTs finish back to /v1/migrate/jobs/...
+//     so the dashboard's polling UI sees live updates.
 //
 // `migrate plan --provider <p> --live-token <t> [--auth0-domain …]`
 // bypasses the DB and prints the plan as JSON — useful for previews

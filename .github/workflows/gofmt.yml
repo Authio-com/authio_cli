@@ -1,0 +1,45 @@
+name: gofmt
+
+# No repo in this fleet gated formatting, and it showed: auth-core carried 84
+# unformatted files, cli 26, locate 15. That is not a style complaint — an
+# 84-file formatting drift means a real one-line change arrives in a diff
+# nobody can scan, so review quality degrades quietly.
+#
+# Cheap and hermetic: no secrets, no services, no database. Safe on every PR,
+# unlike the suites that talk to live infrastructure.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gofmt-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gofmt:
+    name: gofmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: gofmt -l
+        run: |
+          # gofmt -l prints files needing formatting and exits 0 either way,
+          # so the exit code has to come from the output being non-empty.
+          unformatted=$(gofmt -l . | grep -v '^vendor/' || true)
+          if [ -n "$unformatted" ]; then
+            echo "::error::these files are not gofmt-clean:"
+            echo "$unformatted" | sed 's/^/  /'
+            echo
+            echo "Run: gofmt -w \$(gofmt -l .)"
+            exit 1
+          fi
+          echo "all files are gofmt-clean"

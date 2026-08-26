@@ -16,9 +16,10 @@ import (
 // search but no org-level fanout).
 //
 // Endpoints:
-//   POST /v1/b2b/organizations/search                  body {limit, cursor}
-//   POST /v1/b2b/organizations/{id}/members/search     body {limit, cursor}
-//   GET  /v1/b2b/sso?organization_id={id}
+//
+//	POST /v1/b2b/organizations/search                  body {limit, cursor}
+//	POST /v1/b2b/organizations/{id}/members/search     body {limit, cursor}
+//	GET  /v1/b2b/sso?organization_id={id}
 //
 // Auth: HTTP Basic with project_id:project_secret.
 type stytchLivePuller struct{}
@@ -65,8 +66,8 @@ func (stytchLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 			return nil, fmt.Errorf("stytch orgs: %w", err)
 		}
 		var wrap struct {
-			Organizations  []stytchOrg `json:"organizations"`
-			NextCursor     string      `json:"next_cursor"`
+			Organizations []stytchOrg `json:"organizations"`
+			NextCursor    string      `json:"next_cursor"`
 		}
 		if err := json.Unmarshal(respBody, &wrap); err != nil {
 			return nil, fmt.Errorf("stytch orgs decode: %w", err)

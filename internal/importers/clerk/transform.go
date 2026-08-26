@@ -18,30 +18,30 @@ import (
 
 // ClerkUser is one row from `GET /v1/users`.
 type ClerkUser struct {
-	ID                      string             `json:"id"`
-	EmailAddresses          []ClerkEmail       `json:"email_addresses"`
-	PrimaryEmailAddressID   string             `json:"primary_email_address_id"`
-	PhoneNumbers            []ClerkPhone       `json:"phone_numbers"`
-	PrimaryPhoneNumberID    string             `json:"primary_phone_number_id"`
-	FirstName               string             `json:"first_name"`
-	LastName                string             `json:"last_name"`
-	Username                string             `json:"username"`
-	ImageURL                string             `json:"image_url"`
-	HasImage                bool               `json:"has_image"`
-	ExternalAccounts        []ClerkExternal    `json:"external_accounts"`
-	Passkeys                []ClerkPasskey     `json:"passkeys"`
-	TOTPEnabled             bool               `json:"totp_enabled"`
-	BackupCodeEnabled       bool               `json:"backup_code_enabled"`
-	TwoFactorEnabled        bool               `json:"two_factor_enabled"`
-	Banned                  bool               `json:"banned"`
-	Locked                  bool               `json:"locked"`
-	CreatedAt               int64              `json:"created_at"`        // epoch milliseconds
-	UpdatedAt               int64              `json:"updated_at"`
-	LastSignInAt            int64              `json:"last_sign_in_at"`
-	LastActiveAt            int64              `json:"last_active_at"`
-	PublicMetadata          json.RawMessage    `json:"public_metadata"`
-	PrivateMetadata         json.RawMessage    `json:"private_metadata"`
-	UnsafeMetadata          json.RawMessage    `json:"unsafe_metadata"`
+	ID                    string          `json:"id"`
+	EmailAddresses        []ClerkEmail    `json:"email_addresses"`
+	PrimaryEmailAddressID string          `json:"primary_email_address_id"`
+	PhoneNumbers          []ClerkPhone    `json:"phone_numbers"`
+	PrimaryPhoneNumberID  string          `json:"primary_phone_number_id"`
+	FirstName             string          `json:"first_name"`
+	LastName              string          `json:"last_name"`
+	Username              string          `json:"username"`
+	ImageURL              string          `json:"image_url"`
+	HasImage              bool            `json:"has_image"`
+	ExternalAccounts      []ClerkExternal `json:"external_accounts"`
+	Passkeys              []ClerkPasskey  `json:"passkeys"`
+	TOTPEnabled           bool            `json:"totp_enabled"`
+	BackupCodeEnabled     bool            `json:"backup_code_enabled"`
+	TwoFactorEnabled      bool            `json:"two_factor_enabled"`
+	Banned                bool            `json:"banned"`
+	Locked                bool            `json:"locked"`
+	CreatedAt             int64           `json:"created_at"` // epoch milliseconds
+	UpdatedAt             int64           `json:"updated_at"`
+	LastSignInAt          int64           `json:"last_sign_in_at"`
+	LastActiveAt          int64           `json:"last_active_at"`
+	PublicMetadata        json.RawMessage `json:"public_metadata"`
+	PrivateMetadata       json.RawMessage `json:"private_metadata"`
+	UnsafeMetadata        json.RawMessage `json:"unsafe_metadata"`
 }
 
 // ClerkEmail is one element of ClerkUser.EmailAddresses.
@@ -59,9 +59,9 @@ type ClerkEmail struct {
 
 // ClerkPhone is one element of ClerkUser.PhoneNumbers.
 type ClerkPhone struct {
-	ID          string `json:"id"`
-	PhoneNumber string `json:"phone_number"`
-	Verified    bool   `json:"verified"`
+	ID           string `json:"id"`
+	PhoneNumber  string `json:"phone_number"`
+	Verified     bool   `json:"verified"`
 	Verification struct {
 		Status string `json:"status"`
 	} `json:"verification"`
@@ -82,32 +82,32 @@ type ClerkExternal struct {
 
 // ClerkPasskey is one row of ClerkUser.Passkeys.
 type ClerkPasskey struct {
-	ID              string `json:"id"`
-	CredentialID    string `json:"credential_id"`
-	Name            string `json:"name"`
-	PublicKey       string `json:"public_key"`
-	AAGUID          string `json:"aaguid"`
-	Counter         uint64 `json:"counter"`
-	Transports      []string `json:"transports"`
-	BackupEligible  bool   `json:"backup_eligible"`
-	BackupState     bool   `json:"backup_state"`
-	UserVerified    bool   `json:"user_verified"`
-	CreatedAt       int64  `json:"created_at"`
-	LastUsedAt      int64  `json:"last_used_at"`
+	ID             string   `json:"id"`
+	CredentialID   string   `json:"credential_id"`
+	Name           string   `json:"name"`
+	PublicKey      string   `json:"public_key"`
+	AAGUID         string   `json:"aaguid"`
+	Counter        uint64   `json:"counter"`
+	Transports     []string `json:"transports"`
+	BackupEligible bool     `json:"backup_eligible"`
+	BackupState    bool     `json:"backup_state"`
+	UserVerified   bool     `json:"user_verified"`
+	CreatedAt      int64    `json:"created_at"`
+	LastUsedAt     int64    `json:"last_used_at"`
 }
 
 // ClerkOrganization is one row from `GET /v1/organizations`.
 type ClerkOrganization struct {
-	ID             string          `json:"id"`
-	Name           string          `json:"name"`
-	Slug           string          `json:"slug"`
-	LogoURL        string          `json:"logo_url"`
-	ImageURL       string          `json:"image_url"`
-	HasImage       bool            `json:"has_image"`
-	CreatedAt      int64           `json:"created_at"`
-	UpdatedAt      int64           `json:"updated_at"`
-	MembersCount   int             `json:"members_count"`
-	PublicMetadata json.RawMessage `json:"public_metadata"`
+	ID              string          `json:"id"`
+	Name            string          `json:"name"`
+	Slug            string          `json:"slug"`
+	LogoURL         string          `json:"logo_url"`
+	ImageURL        string          `json:"image_url"`
+	HasImage        bool            `json:"has_image"`
+	CreatedAt       int64           `json:"created_at"`
+	UpdatedAt       int64           `json:"updated_at"`
+	MembersCount    int             `json:"members_count"`
+	PublicMetadata  json.RawMessage `json:"public_metadata"`
 	PrivateMetadata json.RawMessage `json:"private_metadata"`
 }
 
@@ -118,14 +118,14 @@ type ClerkMembership struct {
 	Role           string `json:"role"`
 	RoleName       string `json:"role_name"`
 	PublicUserData struct {
-		UserID    string `json:"user_id"`
-		FirstName string `json:"first_name"`
-		LastName  string `json:"last_name"`
-		ImageURL  string `json:"image_url"`
+		UserID     string `json:"user_id"`
+		FirstName  string `json:"first_name"`
+		LastName   string `json:"last_name"`
+		ImageURL   string `json:"image_url"`
 		Identifier string `json:"identifier"`
 	} `json:"public_user_data"`
-	CreatedAt int64           `json:"created_at"`
-	UpdatedAt int64           `json:"updated_at"`
+	CreatedAt      int64           `json:"created_at"`
+	UpdatedAt      int64           `json:"updated_at"`
 	PublicMetadata json.RawMessage `json:"public_metadata"`
 }
 
@@ -138,20 +138,20 @@ type ClerkMembership struct {
 
 // AuthioUserPayload is one row of POST /v1/migrate/bulk-users.
 type AuthioUserPayload struct {
-	ClerkUserID       string                  `json:"clerk_user_id"`
-	Email             string                  `json:"email"`
-	EmailVerified     bool                    `json:"email_verified"`
-	EmailVerifiedAt   *time.Time              `json:"email_verified_at,omitempty"`
-	PhoneE164         string                  `json:"phone_e164,omitempty"`
-	PhoneVerifiedAt   *time.Time              `json:"phone_verified_at,omitempty"`
-	Name              string                  `json:"name,omitempty"`
-	AvatarURL         string                  `json:"avatar_url,omitempty"`
-	CreatedAt         *time.Time              `json:"created_at,omitempty"`
-	LastSignInAt      *time.Time              `json:"last_sign_in_at,omitempty"`
-	Metadata          map[string]any          `json:"metadata,omitempty"`
-	Identities        []AuthioIdentityPayload `json:"identities,omitempty"`
+	ClerkUserID         string                  `json:"clerk_user_id"`
+	Email               string                  `json:"email"`
+	EmailVerified       bool                    `json:"email_verified"`
+	EmailVerifiedAt     *time.Time              `json:"email_verified_at,omitempty"`
+	PhoneE164           string                  `json:"phone_e164,omitempty"`
+	PhoneVerifiedAt     *time.Time              `json:"phone_verified_at,omitempty"`
+	Name                string                  `json:"name,omitempty"`
+	AvatarURL           string                  `json:"avatar_url,omitempty"`
+	CreatedAt           *time.Time              `json:"created_at,omitempty"`
+	LastSignInAt        *time.Time              `json:"last_sign_in_at,omitempty"`
+	Metadata            map[string]any          `json:"metadata,omitempty"`
+	Identities          []AuthioIdentityPayload `json:"identities,omitempty"`
 	WebAuthnCredentials []AuthioWebAuthnPayload `json:"webauthn_credentials,omitempty"`
-	MFAFactors        []AuthioMFAPayload      `json:"mfa_factors,omitempty"`
+	MFAFactors          []AuthioMFAPayload      `json:"mfa_factors,omitempty"`
 }
 
 // AuthioIdentityPayload is one OAuth / external account linked to a user.

@@ -13,9 +13,10 @@ import (
 // Clerk's Backend API. Reuses clerkPlanParser's role-mapping convention.
 //
 // Endpoints:
-//   GET /v1/users?limit=500&offset=N
-//   GET /v1/organizations?limit=100&offset=N
-//   GET /v1/organizations/{id}/memberships?limit=100&offset=N
+//
+//	GET /v1/users?limit=500&offset=N
+//	GET /v1/organizations?limit=100&offset=N
+//	GET /v1/organizations/{id}/memberships?limit=100&offset=N
 type clerkLivePuller struct{}
 
 func (clerkLivePuller) Name() string { return "clerk" }
@@ -64,10 +65,10 @@ func (clerkLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opts
 					Status string `json:"status"`
 				} `json:"verification"`
 			} `json:"email_addresses"`
-			FirstName      string `json:"first_name"`
-			LastName       string `json:"last_name"`
-			ImageURL       string `json:"image_url"`
-			ExternalAccts  []struct {
+			FirstName     string `json:"first_name"`
+			LastName      string `json:"last_name"`
+			ImageURL      string `json:"image_url"`
+			ExternalAccts []struct {
 				Provider string `json:"provider"`
 				Identity string `json:"provider_user_id"`
 			} `json:"external_accounts"`
@@ -134,9 +135,9 @@ func (clerkLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opts
 		}
 		// Clerk wraps as {data:[…]} or returns a bare array depending on plan.
 		var raw []struct {
-			ID       string `json:"id"`
-			Name     string `json:"name"`
-			Slug     string `json:"slug"`
+			ID   string `json:"id"`
+			Name string `json:"name"`
+			Slug string `json:"slug"`
 		}
 		if err := json.Unmarshal(body, &raw); err != nil {
 			var wrap struct {
@@ -195,7 +196,7 @@ func clerkPullOrgMemberships(
 			return err
 		}
 		var rows []struct {
-			Role      string `json:"role"`
+			Role           string `json:"role"`
 			PublicUserData struct {
 				UserID string `json:"user_id"`
 			} `json:"public_user_data"`

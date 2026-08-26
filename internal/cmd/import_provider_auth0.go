@@ -20,9 +20,9 @@ import (
 //   - app_metadata       -> Authio user.metadata.app
 //   - user_metadata      -> Authio user.metadata.user
 //   - identities[].provider/user_id (google-oauth2, windowslive, etc.)
-//                        -> Authio identities (oauth_google, oauth_microsoft, ...)
+//     -> Authio identities (oauth_google, oauth_microsoft, ...)
 //   - organizations[]    -> Authio orgs + memberships
-//                          role "admin" -> Authio "owner"
+//     role "admin" -> Authio "owner"
 //
 // What's dropped:
 //   - password_hash      -> dropped; flagged MigrationPendingEmail

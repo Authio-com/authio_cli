@@ -17,11 +17,11 @@ type Options struct {
 	DryRun bool
 
 	// Include* gate optional pieces. All default to true via NewImporter.
-	IncludeUsers          bool
-	IncludeOrgs           bool
-	IncludeMemberships    bool
-	IncludeOAuthBindings  bool
-	IncludeMFA            bool
+	IncludeUsers         bool
+	IncludeOrgs          bool
+	IncludeMemberships   bool
+	IncludeOAuthBindings bool
+	IncludeMFA           bool
 
 	// SendWelcomeEmail, if true, is forwarded to the management-api so
 	// it queues an "your account moved" email per imported user.
@@ -109,13 +109,13 @@ func NewImporter(secretKey, authioAPIURL, authioAPIKey, authioProjectID string, 
 
 // Summary is the end-of-run aggregate the CLI prints.
 type Summary struct {
-	Started   time.Time
-	Finished  time.Time
-	State     *State
-	Imported  int
-	Existed   int
-	Skipped   int
-	Errored   int
+	Started    time.Time
+	Finished   time.Time
+	State      *State
+	Imported   int
+	Existed    int
+	Skipped    int
+	Errored    int
 	ReportPath string
 }
 

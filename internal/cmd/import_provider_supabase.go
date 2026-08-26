@@ -54,15 +54,15 @@ type supabaseIdentity struct {
 }
 
 type supabaseRecord struct {
-	ID                string             `json:"id"`
-	Email             string             `json:"email"`
-	EmailConfirmedAt  *string            `json:"email_confirmed_at"`
-	Phone             string             `json:"phone"`
-	PhoneConfirmedAt  *string            `json:"phone_confirmed_at"`
-	BannedUntil       *string            `json:"banned_until"`
-	RawUserMetaData   map[string]any     `json:"raw_user_meta_data"`
-	RawAppMetaData    map[string]any     `json:"raw_app_meta_data"`
-	Identities        []supabaseIdentity `json:"identities"`
+	ID               string             `json:"id"`
+	Email            string             `json:"email"`
+	EmailConfirmedAt *string            `json:"email_confirmed_at"`
+	Phone            string             `json:"phone"`
+	PhoneConfirmedAt *string            `json:"phone_confirmed_at"`
+	BannedUntil      *string            `json:"banned_until"`
+	RawUserMetaData  map[string]any     `json:"raw_user_meta_data"`
+	RawAppMetaData   map[string]any     `json:"raw_app_meta_data"`
+	Identities       []supabaseIdentity `json:"identities"`
 }
 
 type supabaseOrgsTable struct {

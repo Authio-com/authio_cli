@@ -49,17 +49,17 @@ type cognitoGroup struct {
 }
 
 type cognitoRecord struct {
-	Username   string          `json:"Username"`
-	Enabled    *bool           `json:"Enabled"`
-	UserStatus string          `json:"UserStatus"`
-	Attributes []cognitoAttr   `json:"Attributes"`
-	MFAOptions []cognitoAttr   `json:"MFAOptions"`
-	Groups     []cognitoGroup  `json:"Groups"`
+	Username   string         `json:"Username"`
+	Enabled    *bool          `json:"Enabled"`
+	UserStatus string         `json:"UserStatus"`
+	Attributes []cognitoAttr  `json:"Attributes"`
+	MFAOptions []cognitoAttr  `json:"MFAOptions"`
+	Groups     []cognitoGroup `json:"Groups"`
 	// Optional federated identities pulled via admin-list-groups; encoded
 	// here for parser convenience.
 	FederatedIdentities []struct {
-		Provider   string `json:"provider"`
-		Subject    string `json:"subject"`
+		Provider string `json:"provider"`
+		Subject  string `json:"subject"`
 	} `json:"FederatedIdentities"`
 }
 

@@ -164,7 +164,7 @@ func (workosLivePuller) PullLive(ctx context.Context, creds LiveCredentials, opt
 		return nil, err
 	}
 	return workosPlanParser{}.ParsePlan(ctx, strings.NewReader(string(buf)), PlanOptions{
-		MergeDuplicateEmails:         true,
+		MergeDuplicateEmails:       true,
 		TargetOrganizationID:       opts.TargetOrganizationID,
 		SourceWorkOSOrganizationID: sourceOrgFilter,
 	})

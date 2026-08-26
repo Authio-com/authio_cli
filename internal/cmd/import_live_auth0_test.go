@@ -13,11 +13,11 @@ import (
 )
 
 // TestAuth0LivePullerEndToEnd is the marquee end-to-end test:
-//   1) Stand up a mock Auth0 Management API (users + orgs + members).
-//   2) Stand up a mock Authio management-API that records POSTs.
-//   3) Pull the plan via auth0LivePuller.
-//   4) Run it through PlanRunner.
-//   5) Confirm we wrote users, identities, orgs, and memberships.
+//  1. Stand up a mock Auth0 Management API (users + orgs + members).
+//  2. Stand up a mock Authio management-API that records POSTs.
+//  3. Pull the plan via auth0LivePuller.
+//  4. Run it through PlanRunner.
+//  5. Confirm we wrote users, identities, orgs, and memberships.
 //
 // The interesting bits the spec calls out:
 //   - identities + sso_connections + scim_directories actually land

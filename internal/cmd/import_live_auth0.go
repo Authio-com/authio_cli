@@ -14,10 +14,11 @@ import (
 // ImportPlan the file-based importer produces.
 //
 // Endpoints:
-//   GET /api/v2/users?per_page=100&page=N&include_totals=true
-//   GET /api/v2/organizations?per_page=100&page=N
-//   GET /api/v2/organizations/{id}/members?per_page=100&page=N
-//   GET /api/v2/organizations/{id}/members/{userId}/roles
+//
+//	GET /api/v2/users?per_page=100&page=N&include_totals=true
+//	GET /api/v2/organizations?per_page=100&page=N
+//	GET /api/v2/organizations/{id}/members?per_page=100&page=N
+//	GET /api/v2/organizations/{id}/members/{userId}/roles
 //
 // Reuses auth0PlanParser.identityKind for the OAuth provider mapping so
 // file and live imports produce identical Identities arrays.

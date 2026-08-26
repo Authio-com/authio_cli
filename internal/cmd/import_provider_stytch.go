@@ -11,19 +11,19 @@ import (
 // stytchPlanParser handles B2B (Members) exports and Consumer (Users)
 // exports. B2B looks like:
 //
-//   {"organizations":[{"organization_id":"org_...","organization_name":"Acme",
-//                       "organization_slug":"acme",
-//                       "members":[{"member_id":"member_...","email_address":"...",
-//                                    "trusted_metadata":{...},"untrusted_metadata":{...},
-//                                    "is_breakglass":false,"status":"active",
-//                                    "sso_registrations":[...],"name":"...",
-//                                    "mfa_enrolled":false}]}],
-//     "sso_connections":[{"connection_id":"...","organization_id":"...",
-//                          "display_name":"...","idp":"saml"}]}
+//	{"organizations":[{"organization_id":"org_...","organization_name":"Acme",
+//	                    "organization_slug":"acme",
+//	                    "members":[{"member_id":"member_...","email_address":"...",
+//	                                 "trusted_metadata":{...},"untrusted_metadata":{...},
+//	                                 "is_breakglass":false,"status":"active",
+//	                                 "sso_registrations":[...],"name":"...",
+//	                                 "mfa_enrolled":false}]}],
+//	  "sso_connections":[{"connection_id":"...","organization_id":"...",
+//	                       "display_name":"...","idp":"saml"}]}
 //
 // Consumer (single-tenant) export is just a flat array of users:
 //
-//   [{"user_id":"user-test-...","emails":[{"email":"..."}],"name":{"first_name":"..."}}]
+//	[{"user_id":"user-test-...","emails":[{"email":"..."}],"name":{"first_name":"..."}}]
 //
 // We auto-detect by looking for `organizations[]` first.
 //
@@ -57,14 +57,14 @@ type stytchOrganization struct {
 }
 
 type stytchMember struct {
-	MemberID         string         `json:"member_id"`
-	EmailAddress     string         `json:"email_address"`
-	Name             string         `json:"name"`
-	Status           string         `json:"status"`
-	IsAdmin          bool           `json:"is_admin"`
-	IsBreakglass     bool           `json:"is_breakglass"`
-	MfaEnrolled      bool           `json:"mfa_enrolled"`
-	Roles            []struct {
+	MemberID     string `json:"member_id"`
+	EmailAddress string `json:"email_address"`
+	Name         string `json:"name"`
+	Status       string `json:"status"`
+	IsAdmin      bool   `json:"is_admin"`
+	IsBreakglass bool   `json:"is_breakglass"`
+	MfaEnrolled  bool   `json:"mfa_enrolled"`
+	Roles        []struct {
 		RoleID string `json:"role_id"`
 	} `json:"roles"`
 	SsoRegistrations []struct {
@@ -97,7 +97,7 @@ type stytchConsumerUser struct {
 	TrustedMetadata   map[string]any `json:"trusted_metadata"`
 	UntrustedMetadata map[string]any `json:"untrusted_metadata"`
 	Providers         []struct {
-		ProviderType string `json:"provider_type"`
+		ProviderType    string `json:"provider_type"`
 		ProviderSubject string `json:"provider_subject"`
 	} `json:"providers"`
 }

@@ -189,11 +189,11 @@ func mustRead(t *testing.T, path string) []byte {
 }
 
 // TestImporter_EndToEnd is the marquee test:
-//   1. Stand up a mock Clerk + a mock Authio management-api.
-//   2. Run the importer.
-//   3. Confirm users, orgs, memberships were all shipped.
-//   4. Confirm the second run is idempotent (every row reports "existed").
-//   5. Confirm the CSV report is on disk.
+//  1. Stand up a mock Clerk + a mock Authio management-api.
+//  2. Run the importer.
+//  3. Confirm users, orgs, memberships were all shipped.
+//  4. Confirm the second run is idempotent (every row reports "existed").
+//  5. Confirm the CSV report is on disk.
 func TestImporter_EndToEnd(t *testing.T) {
 	clerkSrv := mockClerk(t)
 	defer clerkSrv.Close()

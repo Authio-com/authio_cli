@@ -191,7 +191,7 @@ type planFlags struct {
 	// Live-mode pulls the plan from a provider's Admin API instead of
 	// reading a file. When Live.Provider is set, --input is ignored
 	// (the file is implicitly "whatever the provider returns now").
-	Live LiveCredentials
+	Live                LiveCredentials
 	LiveBaseURLOverride string
 	LiveMaxPages        int
 }

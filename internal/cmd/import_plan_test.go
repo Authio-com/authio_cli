@@ -322,10 +322,10 @@ func TestDescopePlan(t *testing.T) {
 // =====================================================================
 
 func TestPlanRunnerWritesIdempotently(t *testing.T) {
-	orgs := map[string]string{} // slug -> id
+	orgs := map[string]string{}  // slug -> id
 	users := map[string]string{} // email -> id
 	var (
-		orgPosts atomic.Int32
+		orgPosts  atomic.Int32
 		userPosts atomic.Int32
 		memPosts  atomic.Int32
 	)
@@ -425,9 +425,9 @@ func TestPlanRunnerWritesIdempotently(t *testing.T) {
 
 func TestPlanRunnerDryRun(t *testing.T) {
 	plan := &ImportPlan{
-		Provider: "test",
-		Users:    []UserRecord{{ExternalID: "x:u1", Email: "u1@x.com", SourceExternalIDs: []string{"x:u1"}}},
-		Orgs:     []OrgRecord{{ExternalID: "x:o1", Name: "O", Slug: "o"}},
+		Provider:    "test",
+		Users:       []UserRecord{{ExternalID: "x:u1", Email: "u1@x.com", SourceExternalIDs: []string{"x:u1"}}},
+		Orgs:        []OrgRecord{{ExternalID: "x:o1", Name: "O", Slug: "o"}},
 		Memberships: []MembershipRecord{{UserExternalID: "x:u1", OrgExternalID: "x:o1", Role: "member", Status: "active"}},
 	}
 	runner := &PlanRunner{DryRun: true, Out: &bytes.Buffer{}}

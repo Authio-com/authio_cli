@@ -14,7 +14,8 @@ import (
 // Personal Access Token (PAT) + project ref and returns user rows.
 //
 // Endpoint:
-//   GET https://api.supabase.com/v1/projects/{ref}/users?limit=...&offset=...
+//
+//	GET https://api.supabase.com/v1/projects/{ref}/users?limit=...&offset=...
 //
 // Auth: Bearer PAT.
 type supabaseLivePuller struct{}

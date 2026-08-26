@@ -13,9 +13,10 @@ import (
 // descopeLivePuller talks to Descope's Management API.
 //
 // Endpoints:
-//   GET  /v1/mgmt/tenant/all
-//   POST /v1/mgmt/user/search           body {limit, page}
-//   GET  /v1/mgmt/sso/settings/all
+//
+//	GET  /v1/mgmt/tenant/all
+//	POST /v1/mgmt/user/search           body {limit, page}
+//	GET  /v1/mgmt/sso/settings/all
 //
 // Auth: Bearer {project_id}:{mgmt_key} (the Descope convention).
 type descopeLivePuller struct{}
@@ -159,7 +160,7 @@ func (descopeLivePuller) PullLive(ctx context.Context, creds LiveCredentials, op
 	if body, err := descopeGet(ctx, h, base+"/v1/mgmt/sso/settings/all", auth); err == nil {
 		var ssoWrap struct {
 			SSOSettings []struct {
-				TenantID string `json:"tenantId"`
+				TenantID    string `json:"tenantId"`
 				IDPMetadata struct {
 					EntityID    string `json:"entityId"`
 					DisplayName string `json:"displayName"`

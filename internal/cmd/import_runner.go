@@ -151,18 +151,18 @@ func saveCursor(path string, c *Cursor) error {
 // ImportRunner drives the standardized import flow: stream from a Parser,
 // dedupe by cursor, rate-limit, POST /v1/users, count summaries.
 type ImportRunner struct {
-	Parser     Parser
-	File       string
-	APIKey     string
-	APIURL     string
-	DryRun     bool
-	Force      bool
-	RateLimit  int           // requests per second; defaults to 50
-	HTTP       *http.Client  // injectable for tests
-	Out        io.Writer     // pretty-prints progress; defaults to os.Stdout
-	NowFunc    func() time.Time
-	SleepFunc  func(time.Duration)
-	UserAgent  string
+	Parser    Parser
+	File      string
+	APIKey    string
+	APIURL    string
+	DryRun    bool
+	Force     bool
+	RateLimit int          // requests per second; defaults to 50
+	HTTP      *http.Client // injectable for tests
+	Out       io.Writer    // pretty-prints progress; defaults to os.Stdout
+	NowFunc   func() time.Time
+	SleepFunc func(time.Duration)
+	UserAgent string
 }
 
 // Run reads the file, validates the cursor, streams through the parser,

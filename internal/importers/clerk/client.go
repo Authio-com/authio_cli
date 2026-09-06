@@ -182,7 +182,7 @@ type AuthioClient struct {
 // public management-api when empty.
 func NewAuthioClient(apiURL, apiKey string, rate float64) *AuthioClient {
 	if apiURL == "" {
-		apiURL = "https://authiomanagement-api-production.up.railway.app"
+		apiURL = "https://api.authio.com"
 	}
 	if rate <= 0 {
 		rate = DefaultRateLimit

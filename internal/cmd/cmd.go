@@ -68,7 +68,7 @@ func Init(_ []string) error {
 	fmt.Println()
 	fmt.Println("    npx create-authio-app my-app")
 	fmt.Println()
-	fmt.Println("  See https://authiodocs-production.up.railway.app/quickstart/create-authio-app")
+	fmt.Println("  See https://docs.authio.com/quickstart/create-authio-app")
 	fmt.Println()
 	return nil
 }

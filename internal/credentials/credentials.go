@@ -5,8 +5,8 @@
 //	[default]
 //	api_key = "sk_live_..."
 //	project_id = "proj_..."
-//	api_url = "https://authiomanagement-api-production.up.railway.app"
-//	auth_core_url = "https://authioauth-core-production.up.railway.app"
+//	api_url = "https://api.authio.com"
+//	auth_core_url = "https://identity.authio.com"
 //
 // File mode is 0600. We store profiles by name; "default" is the implicit
 // profile when none is specified via --profile.

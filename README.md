@@ -67,7 +67,7 @@ tenant, environment, key family (test/live) and the API it targets. Add
   Environment:  Staging (My App — Staging)
   Key:          sk_test_…a1b2 (test key)
   Project ID:   proj_…  (environment ID; API field project_id)
-  API:          https://authiomanagement-api-production.up.railway.app
+  API:          https://api.authio.com
 ```
 
 ### `authio doctor`
@@ -150,7 +150,7 @@ status, and latency; Ctrl+C prints a delivered/failed summary.
 Runs a local HTTP proxy on `:8089` that forwards every request to the configured auth-core. Pretty-prints every request/response with status colors. Great for SDK customers debugging integrations against the live alpha.
 
 ```bash
-authio dev --port 9000 --target https://authioauth-core-production.up.railway.app
+authio dev --port 9000 --target https://identity.authio.com
 ```
 
 ### `authio import auth0 --file users.json [--dry-run] [--profile name]`
@@ -227,8 +227,8 @@ Login writes `[default]` only when `--profile` is omitted.
 [default]
 api_key = "sk_live_..."
 project_id = "proj_..."
-api_url = "https://authiomanagement-api-production.up.railway.app"
-auth_core_url = "https://authioauth-core-production.up.railway.app"
+api_url = "https://api.authio.com"
+auth_core_url = "https://identity.authio.com"
 
 [staging]
 api_key = "sk_test_..."

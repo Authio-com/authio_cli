@@ -17,8 +17,8 @@ import (
 )
 
 const (
-	defaultMgmtAPI       = "https://authiomanagement-api-production.up.railway.app"
-	defaultAuthCore      = "https://authioauth-core-production.up.railway.app"
+	defaultMgmtAPI       = "https://api.authio.com"
+	defaultAuthCore      = "https://identity.authio.com"
 	localMgmtAPI         = "http://localhost:8080"
 	localAuthCore        = "http://localhost:8081"
 	cliDevEnvironmentVar = "AUTHIO_CLI_DEV"

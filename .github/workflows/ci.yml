@@ -16,7 +16,9 @@ jobs:
           go-version: '1.25.14'
           cache: true
       - name: Install govulncheck
-        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+        # Pinned: @latest (v1.8.0+) requires go >= 1.26 which breaks
+        # GOTOOLCHAIN=local on our pinned 1.25 toolchain.
+        run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
       - name: govulncheck
         run: govulncheck ./...
       - run: go vet ./...

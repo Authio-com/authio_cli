@@ -82,9 +82,40 @@ func Check(args []string) error {
 	if err != nil {
 		return err
 	}
+	// Validation parity: dry-run every redirect URI the plan would
+	// create so check reports the exact 422 the API would give on
+	// apply — the rules live server-side, not duplicated here.
+	if err := dryRunRedirectURIs(p, actions); err != nil {
+		return err
+	}
 	renderPlan(os.Stdout, p.ProjectID, actions)
 	if len(actions) > 0 {
 		os.Exit(2)
+	}
+	return nil
+}
+
+// dryRunRedirectURIs sends `dry_run: true` creates for every planned
+// redirect-URI create/replace. The management API runs the same
+// validateRedirectURI it uses on real writes and answers 422 with the
+// exact code, 409 if already allowed (fine — apply treats it as
+// idempotent), or 200.
+func dryRunRedirectURIs(p *credentials.Profile, actions []planAction) error {
+	for _, a := range actions {
+		if a.resource != "redirect_uri" || (a.verb != verbCreate && a.verb != verbReplace) {
+			continue
+		}
+		res, err := apiPost(p, "/v1/redirect-uris", map[string]any{
+			"uri": a.name, "dry_run": true,
+		})
+		if err != nil {
+			return err
+		}
+		if res.status == 422 {
+			return apiError(res, fmt.Sprintf("redirect URI %q would be rejected on apply", a.name))
+		}
+		// 200 valid, 409 already allowed, anything else (older API
+		// without dry_run) — let apply surface it.
 	}
 	return nil
 }

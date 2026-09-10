@@ -4,3 +4,5 @@ go 1.25.14
 
 // All deps are stdlib for now to keep `go install` zero-config and the
 // binary tiny. Adds happen only with strong justification.
+
+require gopkg.in/yaml.v3 v3.0.1

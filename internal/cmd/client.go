@@ -81,6 +81,18 @@ func apiDelete(p *credentials.Profile, path string) (*apiResult, error) {
 	return apiRequest(p, http.MethodDelete, path, nil)
 }
 
+// apiPut performs an authenticated PUT with a JSON body (risk-policy
+// upsert and other singleton resources).
+func apiPut(p *credentials.Profile, path string, body any) (*apiResult, error) {
+	return apiRequest(p, http.MethodPut, path, body)
+}
+
+// apiPatch performs an authenticated PATCH with a JSON body (partial
+// updates, e.g. SSO connections).
+func apiPatch(p *credentials.Profile, path string, body any) (*apiResult, error) {
+	return apiRequest(p, http.MethodPatch, path, body)
+}
+
 func apiRequest(p *credentials.Profile, method, path string, body any) (*apiResult, error) {
 	base := strings.TrimRight(p.APIURL, "/")
 	if base == "" {

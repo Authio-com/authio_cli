@@ -72,6 +72,10 @@ func run(args []string) error {
 		return cmd.Migrate(args[1:])
 	case "bootstrap":
 		return cmd.Bootstrap(args[1:])
+	case "check":
+		return cmd.Check(args[1:])
+	case "apply":
+		return cmd.Apply(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("authio", version)
 		return nil
@@ -107,6 +111,8 @@ COMMANDS
   migrate <subcommand> Live-credentials importer (run|plan).
                        Used by the dashboard wizard's API-token path.
   bootstrap mint       Mint a single-use bootstrap token (admin only)
+  check -f FILE        Diff authio.yaml against live config (exit 2 on drift)
+  apply -f FILE        Apply authio.yaml to the project (config-as-code)
   version              Print version info
   help                 Show this help`)
 }

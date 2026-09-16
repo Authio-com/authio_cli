@@ -246,9 +246,13 @@ it is stored on the Clearance session and attached to every verdict.
 
 Local providers go in `authio.yaml` (airlock-compatible shape); their
 *policy* goes in the same file's `clearance:` block. `authio check` dry-runs
-the block against `POST /v1/session/clearance/import` (the Clearance engine
-validates it and reports what would change); `authio apply` imports it —
-idempotent by profile/agent name, additive:
+the block against `POST /v1/clearance/import` (the workspace API-key
+surface — same `sk_...` auth as every other resource in this file; the
+Clearance engine validates it and reports what would change — matched by
+profile/agent *name*, so an already-existing profile always shows as an
+update even with no content change); `authio apply` imports it — additive,
+and unbound agents (named in the file, no matching Connect client id yet)
+are a warning in the plan, not a silent no-op or a hard failure:
 
 ```yaml
 clearance:

@@ -66,12 +66,16 @@ func TestConfig_ClearanceBlockLoadsAndRoundTrips(t *testing.T) {
 	}
 }
 
-// fakeImportAPI answers only the clearance import route; every other
-// planner is kept quiet by giving the file nothing else to manage.
-func fakeImportAPI(t *testing.T, dryRunResp map[string]any, dryStatus int) (*httptest.Server, *[]map[string]any) {
+// fakeImportAPI answers only the clearance import route (the workspace
+// API-key surface — POST /v1/clearance/import, not the dashboard-session
+// /v1/session/clearance/import); every other planner is kept quiet by
+// giving the file nothing else to manage. applyResp lets a test control
+// what the (non-dry-run) apply call returns; nil falls back to a
+// reasonable default.
+func fakeImportAPI(t *testing.T, dryRunResp map[string]any, dryStatus int, applyResp map[string]any) (*httptest.Server, *[]map[string]any) {
 	var seen []map[string]any
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /v1/session/clearance/import", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /v1/clearance/import", func(w http.ResponseWriter, r *http.Request) {
 		var body map[string]any
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		seen = append(seen, body)
@@ -84,7 +88,11 @@ func fakeImportAPI(t *testing.T, dryRunResp map[string]any, dryStatus int) (*htt
 			_ = json.NewEncoder(w).Encode(dryRunResp)
 			return
 		}
-		_ = json.NewEncoder(w).Encode(map[string]any{"profiles_created": []string{"developer"}, "profiles_updated": []string{}, "agents_bound": []string{"dev-helper"}, "unbound_agents": []string{}})
+		resp := applyResp
+		if resp == nil {
+			resp = map[string]any{"profiles_created": []string{"developer"}, "profiles_updated": []string{}, "agents_bound": []string{"dev-helper"}, "unbound_agents": []any{}}
+		}
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 	return httptest.NewServer(mux), &seen
 }
@@ -92,7 +100,7 @@ func fakeImportAPI(t *testing.T, dryRunResp map[string]any, dryStatus int) (*htt
 const clearanceOnlyYAML = "clearance:\n  profiles:\n    developer: { allow: [\"valet/github/GET:*\"] }\n  agents:\n    dev-helper: { profile: developer }\n"
 
 func TestPlanClearance_DriftBecomesOneAction(t *testing.T) {
-	srv, seen := fakeImportAPI(t, map[string]any{"profiles_created": []string{"developer"}, "profiles_updated": []string{}, "agents_bound": []string{"dev-helper"}, "unbound_agents": []string{}}, 200)
+	srv, seen := fakeImportAPI(t, map[string]any{"profiles_created": []string{"developer"}, "profiles_updated": []string{}, "agents_bound": []string{"dev-helper"}, "unbound_agents": []any{}}, 200, nil)
 	defer srv.Close()
 	cfg, _ := config.Load(writeYAML(t, clearanceOnlyYAML))
 	actions, err := buildPlan(testProfile(srv.URL), cfg, false)
@@ -112,13 +120,13 @@ func TestPlanClearance_DriftBecomesOneAction(t *testing.T) {
 	if err != nil || !strings.Contains(note, "developer") {
 		t.Fatalf("execute: %v %q", err, note)
 	}
-	if _, has := (*seen)[1]["dry_run"]; has {
-		t.Fatal("apply must not be a dry run")
+	if (*seen)[1]["dry_run"] != false {
+		t.Fatalf("apply must send dry_run: false explicitly, got %v", (*seen)[1]["dry_run"])
 	}
 }
 
-func TestPlanClearance_InSyncIsNoAction(t *testing.T) {
-	srv, _ := fakeImportAPI(t, map[string]any{"profiles_created": []string{}, "profiles_updated": []string{}, "agents_bound": []string{}, "unbound_agents": []string{"ghost"}}, 200)
+func TestPlanClearance_TrulyInSyncIsNoAction(t *testing.T) {
+	srv, _ := fakeImportAPI(t, map[string]any{"profiles_created": []string{}, "profiles_updated": []string{}, "agents_bound": []string{}, "unbound_agents": []any{}}, 200, nil)
 	defer srv.Close()
 	cfg, _ := config.Load(writeYAML(t, clearanceOnlyYAML))
 	actions, err := buildPlan(testProfile(srv.URL), cfg, false)
@@ -127,15 +135,53 @@ func TestPlanClearance_InSyncIsNoAction(t *testing.T) {
 	}
 }
 
+// A profile/agent that already exists by name is reported as "update"
+// even with no content change (the import endpoint matches by name, not
+// content — see the doc comment on planClearance). check must still
+// treat that as drift: the server is the source of truth here, not a
+// client-side diff.
+func TestPlanClearance_AlreadyExistingByNameIsStillDrift(t *testing.T) {
+	srv, _ := fakeImportAPI(t, map[string]any{"profiles_created": []string{}, "profiles_updated": []string{"developer"}, "agents_bound": []string{"dev-helper"}, "unbound_agents": []any{}}, 200, nil)
+	defer srv.Close()
+	cfg, _ := config.Load(writeYAML(t, clearanceOnlyYAML))
+	actions, err := buildPlan(testProfile(srv.URL), cfg, false)
+	if err != nil || len(actions) != 1 {
+		t.Fatalf("expected one action, got %v %+v", err, actions)
+	}
+	if !strings.Contains(actions[0].detail, "upsert, matched by name") {
+		t.Fatalf("detail should explain name-matching, got %q", actions[0].detail)
+	}
+}
+
+// unbound_agents is a warning, never a silent no-op and never a hard
+// failure: an agent named in the file with no matching Connect client id
+// yet still needs to surface, so the operator creates it in the
+// dashboard rather than wondering why nothing happened.
+func TestPlanClearance_UnboundAgentIsAWarningNotSilence(t *testing.T) {
+	srv, _ := fakeImportAPI(t, map[string]any{
+		"profiles_created": []string{}, "profiles_updated": []string{}, "agents_bound": []string{},
+		"unbound_agents": []map[string]string{{"name": "ghost", "profile_id": "developer", "runs_as": "user"}},
+	}, 200, nil)
+	defer srv.Close()
+	cfg, _ := config.Load(writeYAML(t, clearanceOnlyYAML))
+	actions, err := buildPlan(testProfile(srv.URL), cfg, false)
+	if err != nil || len(actions) != 1 {
+		t.Fatalf("expected one action surfacing the warning, got %v %+v", err, actions)
+	}
+	if !strings.Contains(actions[0].detail, "WARNING") || !strings.Contains(actions[0].detail, "ghost") {
+		t.Fatalf("detail should warn about the unbound agent by name, got %q", actions[0].detail)
+	}
+}
+
 func TestPlanClearance_ServerRejectionSurfaces(t *testing.T) {
-	srv, _ := fakeImportAPI(t, map[string]any{"code": "invalid_yaml", "errors": []string{"profiles.developer.allow[0]: bad glob"}}, 422)
+	srv, _ := fakeImportAPI(t, map[string]any{"code": "invalid_yaml", "errors": []string{"profiles.developer.allow[0]: bad glob"}}, 422, nil)
 	defer srv.Close()
 	cfg, _ := config.Load(writeYAML(t, clearanceOnlyYAML))
 	_, err := buildPlan(testProfile(srv.URL), cfg, false)
-	if err == nil || !strings.Contains(err.Error(), "invalid_yaml") {
-		t.Fatalf("expected invalid_yaml error, got %v", err)
+	if err == nil || !strings.Contains(err.Error(), "invalid_yaml") || !strings.Contains(err.Error(), "bad glob") {
+		t.Fatalf("expected invalid_yaml error with the engine's per-field message, got %v", err)
 	}
-	srv2, _ := fakeImportAPI(t, map[string]any{"code": "clearance_engine_unavailable"}, 503)
+	srv2, _ := fakeImportAPI(t, map[string]any{"code": "clearance_engine_unavailable"}, 503, nil)
 	defer srv2.Close()
 	_, err = buildPlan(testProfile(srv2.URL), cfg, false)
 	if err == nil || !strings.Contains(err.Error(), "clearance engine unavailable") {

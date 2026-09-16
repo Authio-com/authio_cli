@@ -240,7 +240,92 @@ func buildPlan(p *credentials.Profile, cfg *config.File, prune bool) ([]planActi
 		}
 		actions = append(actions, a...)
 	}
+	if cfg.HasClearance() {
+		a, err := planClearance(p, cfg)
+		if err != nil {
+			return nil, err
+		}
+		actions = append(actions, a...)
+	}
 	return actions, nil
+}
+
+// planClearance diffs the clearance: block by asking the management API
+// for a dry run — the Clearance engine validates the YAML and reports
+// which profiles it would create or update and which agents it would
+// bind. Nothing to change → no action (in sync). Identity is by name, so
+// the import is idempotent.
+func planClearance(p *credentials.Profile, cfg *config.File) ([]planAction, error) {
+	doc, err := cfg.ClearanceYAML()
+	if err != nil {
+		return nil, err
+	}
+	res, err := apiPost(p, "/v1/session/clearance/import", map[string]any{"yaml": doc, "dry_run": true})
+	if err != nil {
+		return nil, err
+	}
+	switch res.status {
+	case 200:
+	case 422:
+		return nil, apiError(res, "clearance block would be rejected on apply")
+	case 503:
+		return nil, apiError(res, "clearance engine unavailable — is Clearance enabled for this project?")
+	default:
+		return nil, apiError(res, "clearance dry run")
+	}
+	var sum clearanceImportSummary
+	if err := json.Unmarshal(res.body, &sum); err != nil {
+		return nil, fmt.Errorf("decode clearance dry run: %w", err)
+	}
+	if len(sum.ProfilesCreated)+len(sum.ProfilesUpdated)+len(sum.AgentsBound) == 0 {
+		return nil, nil
+	}
+	detail := sum.describe()
+	return []planAction{{
+		verb:     verbUpdate,
+		resource: "clearance",
+		name:     "policy",
+		detail:   detail,
+		execute: func(p *credentials.Profile) (string, error) {
+			r, err := apiPost(p, "/v1/session/clearance/import", map[string]any{"yaml": doc})
+			if err != nil {
+				return "", err
+			}
+			if r.status != 200 {
+				return "", apiError(r, "import clearance block")
+			}
+			var s clearanceImportSummary
+			_ = json.Unmarshal(r.body, &s)
+			return s.describe(), nil
+		},
+	}}, nil
+}
+
+type clearanceImportSummary struct {
+	ProfilesCreated []string `json:"profiles_created"`
+	ProfilesUpdated []string `json:"profiles_updated"`
+	AgentsBound     []string `json:"agents_bound"`
+	UnboundAgents   []string `json:"unbound_agents"`
+}
+
+func (s clearanceImportSummary) describe() string {
+	var parts []string
+	if n := len(s.ProfilesCreated); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d profile(s) to create (%s)", n, strings.Join(s.ProfilesCreated, ", ")))
+	}
+	if n := len(s.ProfilesUpdated); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d profile(s) to update (%s)", n, strings.Join(s.ProfilesUpdated, ", ")))
+	}
+	if n := len(s.AgentsBound); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d agent(s) to bind (%s)", n, strings.Join(s.AgentsBound, ", ")))
+	}
+	if n := len(s.UnboundAgents); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d agent(s) in file not yet created in the dashboard (%s)", n, strings.Join(s.UnboundAgents, ", ")))
+	}
+	if len(parts) == 0 {
+		return "in sync"
+	}
+	return strings.Join(parts, "; ")
 }
 
 func apiError(res *apiResult, ctx string) error {

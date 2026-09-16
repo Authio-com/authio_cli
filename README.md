@@ -201,6 +201,77 @@ authio keys rotate --name cli-rotated
 Mints a replacement workspace `sk_` key, writes it to the active profile in
 `~/.authio/credentials.toml`, then revokes the previous key.
 
+### `authio clearance` — local sidecar for Authio Clearance
+
+[Clearance](https://docs.authio.com/clearance) judges every tool call an AI
+agent makes — **cleared / needs clearance / denied** — against policy that
+lives in Authio. Hosted tools (Valet-backed HubSpot, GitHub, Slack, …) are
+served by `clearance.authio.com` directly. Tools that only exist on a
+developer's machine — shell commands, stdio MCP servers — cannot be hosted,
+so the sidecar wraps them: it asks Clearance for a verdict before every
+call and records the result centrally. **The sidecar holds no policy of its
+own.**
+
+```sh
+authio clearance login  --agent agt_…     # sign in as the agent's Connect client
+authio clearance init   --agent agt_…     # print the MCP config to paste
+authio clearance serve  --agent agt_…     # stdio MCP server (run by your MCP client)
+authio clearance explain --agent agt_…    # the agent's resolved policy chain
+```
+
+`login` runs OAuth authorization-code + PKCE on a loopback redirect
+(`http://127.0.0.1:<port>/callback`, RFC 8252) against auth-core as the
+agent's DCR client — register that redirect on the client (pass `--port` to
+keep it stable) — with scopes `tools:read tools:call` and
+`resource=https://clearance.authio.com`. It saves a rotating refresh token in
+`~/.authio/clearance/<agent>.json` (mode 0600) and renews silently; when a
+refresh is rejected you are told to log in again. The agent's `client_id`
+and project are read from your `authio login` profile via
+`GET /v1/session/clearance/agents/:id`, or passed with `--client-id` /
+`--project`.
+
+`serve` exposes, as one stdio MCP server:
+
+| tool | judged as | runs |
+|---|---|---|
+| everything the hosted agent lists (`valet.<provider>.request`, `clearance.await_approval`, …) | inside `tools/call` on clearance.authio.com | hosted — proxied verbatim |
+| `exec.run {command, args, cwd?, timeout_ms?}` | `POST /v1/agents/{id}/evaluate` provider `exec`, tool `argv[0]`, policy targets `exec/<argv0>` and `exec:<command args>` | locally: no shell, argv verbatim, cwd confined to the launch directory, output capped at 1 MiB, timeout ≤ 120 s, child env = PATH + HOME only |
+| `<provider>.<tool>` for each stdio server under `clearance.providers` | provider `mcp`, tool `<provider>/<tool>` | forwarded to the child process (spawned on first use, env scrubbed + explicit `env`) |
+
+A `denied` or `needs_clearance` verdict is returned to the client as an
+`isError` result with `_meta` (`verdict`, `reason_code`, `approval_id`,
+`expires_at`) — never as a JSON-RPC error — so the agent can call
+`clearance.await_approval` and retry. `initialize` may carry `_meta.intent`;
+it is stored on the Clearance session and attached to every verdict.
+
+Local providers go in `authio.yaml` (airlock-compatible shape); their
+*policy* goes in the same file's `clearance:` block. `authio check` dry-runs
+the block against `POST /v1/session/clearance/import` (the Clearance engine
+validates it and reports what would change); `authio apply` imports it —
+idempotent by profile/agent name, additive:
+
+```yaml
+clearance:
+  providers:
+    filesystem:
+      type: stdio
+      command: npx
+      args: ["-y", "@modelcontextprotocol/server-filesystem", "/workspace"]
+      env: { LOG_LEVEL: warn }
+    exec: builtin
+  profiles:
+    developer:
+      allow: ["valet/github/GET:*", "mcp/filesystem/read_*"]
+      ask:   ["mcp/filesystem/write_*", "exec:git push*"]
+      deny:  ["mcp/filesystem/delete_*", "exec:rm -rf *", "exec:sudo *"]
+  agents:
+    dev-helper:
+      profile: developer
+```
+
+Endpoint overrides: `AUTHIO_CLEARANCE_URL` / `--clearance-url`,
+`AUTHIO_AUTH_CORE_URL` / `--auth-core-url`, `AUTHIO_API_URL` / `--api-url`.
+
 ### Redirect URIs / allowed origins
 
 There is no CLI subcommand yet. Provision per-customer domains with the

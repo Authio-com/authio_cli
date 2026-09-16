@@ -47,6 +47,34 @@ type File struct {
 	Webhooks       []Webhook       `yaml:"webhooks"`
 	RiskPolicy     *RiskPolicy     `yaml:"risk_policy"`
 	SSOConnections []SSOConnection `yaml:"sso_connections"`
+	// Clearance is the agent-authorization block (profiles, agents,
+	// providers). It is captured verbatim and validated server-side by
+	// the Clearance engine via POST /v1/session/clearance/import — the
+	// CLI does not duplicate that schema. `providers` inside it is read
+	// locally by `authio clearance serve`.
+	Clearance yaml.Node `yaml:"clearance"`
+}
+
+// HasClearance reports whether the file declares a clearance: block.
+func (f *File) HasClearance() bool {
+	return f.Clearance.Kind != 0 && !(f.Clearance.Kind == yaml.ScalarNode && f.Clearance.Value == "")
+}
+
+// ClearanceYAML re-serialises the clearance block as a standalone document
+// (`clearance: …`) for the import route.
+func (f *File) ClearanceYAML() (string, error) {
+	if !f.HasClearance() {
+		return "", nil
+	}
+	doc := yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{
+		{Kind: yaml.ScalarNode, Value: "clearance"},
+		&f.Clearance,
+	}}
+	b, err := yaml.Marshal(&doc)
+	if err != nil {
+		return "", err
+	}
+	return string(b), nil
 }
 
 // RedirectURI declares one allowed redirect URI. Identity: URI.
@@ -193,5 +221,5 @@ func (f *File) validate() error {
 // always a mistake (wrong file), so the commands refuse it explicitly.
 func (f *File) Empty() bool {
 	return len(f.RedirectURIs) == 0 && len(f.Webhooks) == 0 &&
-		f.RiskPolicy == nil && len(f.SSOConnections) == 0
+		f.RiskPolicy == nil && len(f.SSOConnections) == 0 && !f.HasClearance()
 }

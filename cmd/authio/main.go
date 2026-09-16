@@ -11,6 +11,7 @@
 //	authio import auth0|clerk|cognito|firebase|supabase ...
 //	                                       Bulk-import existing users from another auth provider
 //	authio bootstrap mint                  Mint a single-use bootstrap token (admin only)
+//	authio clearance login|serve|init      Local MCP sidecar for Authio Clearance
 //	authio version                        Print version info
 package main
 
@@ -76,6 +77,8 @@ func run(args []string) error {
 		return cmd.Check(args[1:])
 	case "apply":
 		return cmd.Apply(args[1:])
+	case "clearance":
+		return cmd.Clearance(args[1:])
 	case "version", "--version", "-v":
 		fmt.Println("authio", version)
 		return nil
@@ -113,6 +116,7 @@ COMMANDS
   bootstrap mint       Mint a single-use bootstrap token (admin only)
   check -f FILE        Diff authio.yaml against live config (exit 2 on drift)
   apply -f FILE        Apply authio.yaml to the project (config-as-code)
+  clearance <cmd>      Local MCP sidecar for Authio Clearance (login|serve|init|explain)
   version              Print version info
   help                 Show this help`)
 }

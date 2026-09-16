@@ -49,9 +49,11 @@ type File struct {
 	SSOConnections []SSOConnection `yaml:"sso_connections"`
 	// Clearance is the agent-authorization block (profiles, agents,
 	// providers). It is captured verbatim and validated server-side by
-	// the Clearance engine via POST /v1/session/clearance/import — the
-	// CLI does not duplicate that schema. `providers` inside it is read
-	// locally by `authio clearance serve`.
+	// the Clearance engine via POST /v1/clearance/import (the workspace
+	// API-key surface `authio apply`/`check` use — not
+	// /v1/session/clearance/import, which needs a dashboard session JWT)
+	// — the CLI does not duplicate that schema. `providers` inside it is
+	// read locally by `authio clearance serve`.
 	Clearance yaml.Node `yaml:"clearance"`
 }
 

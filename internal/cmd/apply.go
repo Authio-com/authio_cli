@@ -18,7 +18,9 @@ import (
 //	authio apply  -f authio.yaml    execute the plan
 //
 // The YAML file declares desired state for a project's redirect URIs,
-// webhook endpoints, risk policy, and org SSO connections; the plan is
+// webhook endpoints, risk policy, org SSO connections, and (via the
+// clearance: block) Clearance agent-authorization profiles and agents;
+// the plan is
 // the diff between that file and the live management API. Deletions of
 // live resources missing from the file happen only with prune (file key
 // `prune: true` or the --prune flag) — additive by default so a partial
@@ -255,57 +257,97 @@ func buildPlan(p *credentials.Profile, cfg *config.File, prune bool) ([]planActi
 // which profiles it would create or update and which agents it would
 // bind. Nothing to change → no action (in sync). Identity is by name, so
 // the import is idempotent.
+//
+// POST /v1/clearance/import is the workspace-key (sk_...) surface — the
+// same auth every other resource in this file uses. It is NOT
+// /v1/session/clearance/import, which needs a dashboard session JWT the
+// CLI's API key cannot obtain.
+//
+// The server matches profiles/agents by NAME, not by content: an
+// already-existing profile always comes back in profiles_updated even
+// when nothing in it actually changed. So `authio check` reports drift
+// whenever the file declares any pre-existing profile or agent — a real
+// limitation of the import endpoint, not a bug here (same class of
+// documented gap as sso_connections' write-only saml/oidc blocks).
 func planClearance(p *credentials.Profile, cfg *config.File) ([]planAction, error) {
 	doc, err := cfg.ClearanceYAML()
 	if err != nil {
 		return nil, err
 	}
-	res, err := apiPost(p, "/v1/session/clearance/import", map[string]any{"yaml": doc, "dry_run": true})
+	sum, err := clearanceImportCall(p, doc, true)
 	if err != nil {
 		return nil, err
 	}
-	switch res.status {
-	case 200:
-	case 422:
-		return nil, apiError(res, "clearance block would be rejected on apply")
-	case 503:
-		return nil, apiError(res, "clearance engine unavailable — is Clearance enabled for this project?")
-	default:
-		return nil, apiError(res, "clearance dry run")
-	}
-	var sum clearanceImportSummary
-	if err := json.Unmarshal(res.body, &sum); err != nil {
-		return nil, fmt.Errorf("decode clearance dry run: %w", err)
-	}
-	if len(sum.ProfilesCreated)+len(sum.ProfilesUpdated)+len(sum.AgentsBound) == 0 {
+	if len(sum.ProfilesCreated)+len(sum.ProfilesUpdated)+len(sum.AgentsBound)+len(sum.UnboundAgents) == 0 {
 		return nil, nil
+	}
+	verb := verbCreate
+	if len(sum.ProfilesUpdated) > 0 || len(sum.AgentsBound) > 0 {
+		verb = verbUpdate
 	}
 	detail := sum.describe()
 	return []planAction{{
-		verb:     verbUpdate,
+		verb:     verb,
 		resource: "clearance",
 		name:     "policy",
 		detail:   detail,
 		execute: func(p *credentials.Profile) (string, error) {
-			r, err := apiPost(p, "/v1/session/clearance/import", map[string]any{"yaml": doc})
+			s, err := clearanceImportCall(p, doc, false)
 			if err != nil {
 				return "", err
 			}
-			if r.status != 200 {
-				return "", apiError(r, "import clearance block")
-			}
-			var s clearanceImportSummary
-			_ = json.Unmarshal(r.body, &s)
 			return s.describe(), nil
 		},
 	}}, nil
 }
 
+// clearanceImportCall POSTs the clearance: block and decodes either a
+// success summary or a structured error (code + message, and for
+// invalid_yaml, the engine's own per-field errors — apiError's generic
+// {code, message} shape would silently drop that list).
+func clearanceImportCall(p *credentials.Profile, doc string, dryRun bool) (*clearanceImportSummary, error) {
+	res, err := apiPost(p, "/v1/clearance/import", map[string]any{"yaml": doc, "dry_run": dryRun})
+	if err != nil {
+		return nil, err
+	}
+	if res.status != 200 {
+		var body struct {
+			Code    string   `json:"code"`
+			Message string   `json:"message"`
+			Errors  []string `json:"errors"`
+		}
+		_ = json.Unmarshal(res.body, &body)
+		switch {
+		case body.Code == "clearance_engine_unavailable":
+			return nil, fmt.Errorf("clearance engine unavailable — is Clearance enabled for this project? (%s)", body.Code)
+		case len(body.Errors) > 0:
+			return nil, fmt.Errorf("clearance block rejected: %s: %s", body.Code, strings.Join(body.Errors, "; "))
+		default:
+			return nil, apiError(res, "clearance import")
+		}
+	}
+	var sum clearanceImportSummary
+	if err := json.Unmarshal(res.body, &sum); err != nil {
+		return nil, fmt.Errorf("decode clearance import response: %w", err)
+	}
+	return &sum, nil
+}
+
 type clearanceImportSummary struct {
-	ProfilesCreated []string `json:"profiles_created"`
-	ProfilesUpdated []string `json:"profiles_updated"`
-	AgentsBound     []string `json:"agents_bound"`
-	UnboundAgents   []string `json:"unbound_agents"`
+	ProfilesCreated []string               `json:"profiles_created"`
+	ProfilesUpdated []string               `json:"profiles_updated"`
+	AgentsBound     []string               `json:"agents_bound"`
+	UnboundAgents   []clearanceUnboundNote `json:"unbound_agents"`
+}
+
+// clearanceUnboundNote is an agent named in the YAML with no matching
+// Connect client id yet — the file has no client_id to bind to, so
+// creating that agent (and pointing it at this profile) is a dashboard
+// step. Never a hard failure.
+type clearanceUnboundNote struct {
+	Name      string `json:"name"`
+	ProfileID string `json:"profile_id"`
+	RunsAs    string `json:"runs_as"`
 }
 
 func (s clearanceImportSummary) describe() string {
@@ -314,13 +356,17 @@ func (s clearanceImportSummary) describe() string {
 		parts = append(parts, fmt.Sprintf("%d profile(s) to create (%s)", n, strings.Join(s.ProfilesCreated, ", ")))
 	}
 	if n := len(s.ProfilesUpdated); n > 0 {
-		parts = append(parts, fmt.Sprintf("%d profile(s) to update (%s)", n, strings.Join(s.ProfilesUpdated, ", ")))
+		parts = append(parts, fmt.Sprintf("%d profile(s) to upsert, matched by name (%s)", n, strings.Join(s.ProfilesUpdated, ", ")))
 	}
 	if n := len(s.AgentsBound); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d agent(s) to bind (%s)", n, strings.Join(s.AgentsBound, ", ")))
 	}
 	if n := len(s.UnboundAgents); n > 0 {
-		parts = append(parts, fmt.Sprintf("%d agent(s) in file not yet created in the dashboard (%s)", n, strings.Join(s.UnboundAgents, ", ")))
+		names := make([]string, n)
+		for i, u := range s.UnboundAgents {
+			names[i] = u.Name
+		}
+		parts = append(parts, fmt.Sprintf("WARNING: %d agent(s) not yet created in the dashboard, so not bound (%s)", n, strings.Join(names, ", ")))
 	}
 	if len(parts) == 0 {
 		return "in sync"

@@ -158,9 +158,14 @@ func AwaitCallback(ctx context.Context, ln net.Listener, state string) (string, 
 			return
 		}
 		q := r.URL.Query()
+		// The page never reflects a query value: the callback is reachable
+		// by anything that can open a browser tab at 127.0.0.1, so treat
+		// error/error_description as untrusted and report the detail only
+		// on the terminal (where it is data, not markup).
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		if e := q.Get("error"); e != "" {
-			fmt.Fprintf(w, "<h2>Authorization failed</h2><p>%s: %s</p>", htmlEscape(e), htmlEscape(q.Get("error_description")))
+			fmt.Fprint(w, "<h2>Authorization failed</h2><p>The authorization server refused the request. See your terminal for details.</p>")
 			ch <- result{err: fmt.Errorf("authorization refused: %s %s", e, q.Get("error_description"))}
 			return
 		}
@@ -190,11 +195,6 @@ func AwaitCallback(ctx context.Context, ln net.Listener, state string) (string, 
 	case <-ctx.Done():
 		return "", ctx.Err()
 	}
-}
-
-func htmlEscape(s string) string {
-	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;")
-	return r.Replace(s)
 }
 
 // TokenSource returns a valid access token, refreshing (and persisting)

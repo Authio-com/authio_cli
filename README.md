@@ -192,6 +192,36 @@ when omitted. Optional `--org org_…`, `--description`, `--json`.
 Distinct from the legacy `authio webhook listen` (ngrok helper) and from
 `authio listen` (local event forwarder).
 
+### `authio domains`
+
+```bash
+authio domains list
+authio domains create --domain auth.example.com
+authio domains verify --id dom_…
+authio domains branding --id dom_… --display-name Acme --color '#112233'
+```
+
+Uses the secret key's project (`POST /v1/custom-domains` and friends). Pro
+and enterprise plans also register the Cloudflare certificate. There is no
+project-id flag. Add `--json` for the API body, including DNS records.
+
+### `authio redirects`
+
+```bash
+authio redirects list
+authio redirects create --uri https://app.example.com/callback --kind oauth_callback
+```
+
+### `authio mcp`
+
+Stdio MCP server (newline JSON-RPC) for `whoami`, custom domains, domain
+branding, and redirect URIs. It uses the same secret key as the other
+commands and never accepts a dashboard session.
+
+```json
+{ "mcpServers": { "authio": { "command": "authio", "args": ["mcp"] } } }
+```
+
 ### `authio keys rotate`
 
 ```bash

@@ -77,6 +77,12 @@ func run(args []string) error {
 		return cmd.Check(args[1:])
 	case "apply":
 		return cmd.Apply(args[1:])
+	case "domains":
+		return cmd.Domains(args[1:])
+	case "redirects":
+		return cmd.Redirects(args[1:])
+	case "mcp":
+		return cmd.MCP(args[1:])
 	case "clearance":
 		return cmd.Clearance(args[1:])
 	case "version", "--version", "-v":
@@ -116,6 +122,9 @@ COMMANDS
   bootstrap mint       Mint a single-use bootstrap token (admin only)
   check -f FILE        Diff authio.yaml against live config (exit 2 on drift)
   apply -f FILE        Apply authio.yaml to the project (config-as-code)
+  domains <cmd>        Custom domains (list|create|verify|branding) via the secret key
+  redirects <cmd>      Redirect URIs (list|create) via the secret key
+  mcp                  Stdio MCP server for domains, branding, and redirects
   clearance <cmd>      Local MCP sidecar for Authio Clearance (login|serve|init|explain)
   version              Print version info
   help                 Show this help`)

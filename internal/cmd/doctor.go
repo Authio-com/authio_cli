@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // errDoctorFailed is returned (quietly) when one or more checks FAIL so

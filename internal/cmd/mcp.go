@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // MCP serves a newline-delimited JSON-RPC MCP server on stdio.

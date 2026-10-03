@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 type usersImportFlags struct {

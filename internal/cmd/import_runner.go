@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // SourceUser is the canonical shape every parser emits. The runner doesn't

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tcast/authio_cli/internal/config"
+	"github.com/Authio-com/authio_cli/internal/config"
 )
 
 const clearanceYAML = `

@@ -1,4 +1,4 @@
-module github.com/tcast/authio_cli
+module github.com/Authio-com/authio_cli
 
 go 1.25.14
 

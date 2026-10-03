@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tcast/authio_cli/internal/config"
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/config"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // fakeMgmtAPI is a minimal in-memory management API covering the four

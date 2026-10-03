@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // cliUserAgent is sent on every CLI-originated request so the platform

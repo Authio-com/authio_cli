@@ -20,7 +20,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // Listen forwards Authio events to a local HTTP endpoint — the Authio

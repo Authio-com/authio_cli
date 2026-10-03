@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 func TestOrgsCreateRequiresName(t *testing.T) {

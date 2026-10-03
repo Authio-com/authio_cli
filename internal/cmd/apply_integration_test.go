@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/tcast/authio_cli/internal/config"
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/config"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // Integration test against a live environment (normally e2e). Skipped

@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/tcast/authio_cli/internal/cmd"
+	"github.com/Authio-com/authio_cli/internal/cmd"
 )
 
 // version is overridable at build time via

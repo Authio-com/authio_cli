@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tcast/authio_cli/internal/clearance"
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/clearance"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // Clearance is `authio clearance <login|serve|init|explain>` — the local

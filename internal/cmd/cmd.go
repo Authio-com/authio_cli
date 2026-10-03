@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // Logs is `authio logs tail`. Phase 3.5 streams from authio_audit's query

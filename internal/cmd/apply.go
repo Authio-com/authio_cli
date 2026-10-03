@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/tcast/authio_cli/internal/config"
-	"github.com/tcast/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/config"
+	"github.com/Authio-com/authio_cli/internal/credentials"
 )
 
 // Check and Apply are the config-as-code pair (Phase 3, 2026-09

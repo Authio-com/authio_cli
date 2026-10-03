@@ -20,7 +20,7 @@ curl -fsSL https://raw.githubusercontent.com/authio-com/authio_cli/main/scripts/
 brew install authio-com/tap/authio
 
 # from source (always works)
-go install github.com/tcast/authio_cli/cmd/authio@latest
+go install github.com/Authio-com/authio_cli/cmd/authio@latest
 ```
 
 The installer drops the binary in `/usr/local/bin` (falling back to

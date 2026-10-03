@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/tcast/authio_cli/internal/credentials"
-	"github.com/tcast/authio_cli/internal/importers/clerk"
+	"github.com/Authio-com/authio_cli/internal/credentials"
+	"github.com/Authio-com/authio_cli/internal/importers/clerk"
 )
 
 // clerkNativeFlags is the parsed flag set for

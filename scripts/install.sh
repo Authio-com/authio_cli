@@ -39,7 +39,7 @@ os="$(uname -s)"
 case "$os" in
   Darwin) os="darwin" ;;
   Linux)  os="linux" ;;
-  *) err "unsupported OS: $os (build from source: go install github.com/tcast/authio_cli/cmd/authio@latest)" ;;
+  *) err "unsupported OS: $os (build from source: go install github.com/Authio-com/authio_cli/cmd/authio@latest)" ;;
 esac
 
 arch="$(uname -m)"

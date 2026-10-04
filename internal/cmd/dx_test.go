@@ -209,6 +209,19 @@ func fakeAPI(t *testing.T) *httptest.Server {
 			"tenant":      map[string]any{"name": "Acme"},
 		})
 	})
+	mux.HandleFunc("/v1/environments", func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer sk_test_demo" {
+			w.WriteHeader(401)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{
+			"tenant_id": "ten_demo",
+			"environments": []map[string]any{
+				{"id": "proj_prod", "name": "Production", "environment": "production", "is_production": true, "slug": "production", "purpose": "production", "current": false},
+				{"id": "proj_demo", "name": "Staging", "environment": "staging", "is_production": false, "slug": "staging", "purpose": "staging", "current": true},
+			},
+		})
+	})
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		_ = json.NewEncoder(w).Encode(map[string]any{"status": "ok"})
 	})
@@ -265,6 +278,9 @@ func TestEnvListAndUse(t *testing.T) {
 	writeProfile(t, srv.URL)
 	if err := Env([]string{"list", "--json"}); err != nil {
 		t.Fatalf("env list: %v", err)
+	}
+	if err := Env([]string{"list"}); err != nil {
+		t.Fatalf("env list (table): %v", err)
 	}
 	if err := Env([]string{"use", "default"}); err != nil {
 		t.Fatalf("env use: %v", err)

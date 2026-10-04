@@ -107,12 +107,18 @@ authio env use staging     # make a profile active for future commands
 ```text
 * default          Production   live   Acme
   staging          Staging      test   Acme
+
+  Environments in this tenant:
+  > Production           Production   profile: default
+    Staging              Staging      profile: staging
+    QA                   Development  no profile — mint a key in the dashboard
 ```
 
-There is no `sk_`-authed route to enumerate a tenant's *other*
-environments — that surface (`/v1/session/environments`) requires a
-dashboard session — so `env` operates on what the API actually exposes to
-a key: its own environment, per profile.
+The second block comes from `GET /v1/environments`, a read-only route
+that lists every environment in the active key's tenant. It shows
+siblings you have no key for yet; mint one in the dashboard and
+`authio login --profile <name>` to add it. `--json` returns
+`{ "profiles": [...], "tenant_environments": [...] }`.
 
 ### `authio listen`
 

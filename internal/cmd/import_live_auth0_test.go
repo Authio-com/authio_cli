@@ -270,3 +270,25 @@ func TestEnvelopeRoundTrip(t *testing.T) {
 		t.Errorf("expected failure with wrong project_id")
 	}
 }
+
+// TestEnvelopeKeyRing: after AUTHIO_IMPORT_CREDS_KEY rotates, "env" rows
+// open with the key in the _PREVIOUS slot and rows naming an unknown id fail.
+func TestEnvelopeKeyRing(t *testing.T) {
+	projectID := "prj_test"
+	original := LiveCredentials{Domain: "tenant.auth0.com", Token: "tok_supersecret"}
+	envelope, err := SealForTest(projectID, "old-master-key", original)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("AUTHIO_IMPORT_CREDS_KEY", "new-master-key")
+	t.Setenv("AUTHIO_IMPORT_CREDS_KEY_ID", "k2")
+	t.Setenv("AUTHIO_IMPORT_CREDS_KEY_PREVIOUS", "old-master-key")
+	got, err := openCredEnvelope(projectID, envelope)
+	if err != nil || got.Token != original.Token {
+		t.Fatalf("legacy envelope after rotation: got=%+v err=%v", got, err)
+	}
+	t.Setenv("AUTHIO_IMPORT_CREDS_KEY_PREVIOUS", "")
+	if _, err := openCredEnvelope(projectID, envelope); err == nil {
+		t.Fatal("expected failure once the previous key is retired")
+	}
+}

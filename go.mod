@@ -1,6 +1,6 @@
 module github.com/Authio-com/authio_cli
 
-go 1.25.14
+go 1.26.10
 
 // All deps are stdlib for now to keep `go install` zero-config and the
 // binary tiny. Adds happen only with strong justification.

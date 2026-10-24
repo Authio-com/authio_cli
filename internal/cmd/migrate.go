@@ -446,12 +446,12 @@ func openCredEnvelope(projectID string, env CredEnvelopeRaw) (LiveCredentials, e
 	if env.Alg != "aes-256-gcm" {
 		return LiveCredentials{}, fmt.Errorf("unsupported envelope alg %q", env.Alg)
 	}
-	kekMaster := os.Getenv("AUTHIO_IMPORT_CREDS_KEY")
-	if kekMaster == "" {
+	if os.Getenv("AUTHIO_IMPORT_CREDS_KEY") == "" {
 		return LiveCredentials{}, errors.New("AUTHIO_IMPORT_CREDS_KEY not set on worker; cannot decrypt envelope")
 	}
-	if env.KekID != "env" {
-		return LiveCredentials{}, fmt.Errorf("envelope sealed with kek_id=%q (need 'env')", env.KekID)
+	kekMaster := importCredsKeyFor(env.KekID)
+	if kekMaster == "" {
+		return LiveCredentials{}, fmt.Errorf("envelope sealed with kek_id=%q, which no configured key carries", env.KekID)
 	}
 	master := deriveMasterKey(kekMaster)
 	kek := deriveProjectKEK(master, projectID)
@@ -482,6 +482,27 @@ func openCredEnvelope(projectID string, env CredEnvelopeRaw) (LiveCredentials, e
 		return LiveCredentials{}, fmt.Errorf("decode creds json: %w", err)
 	}
 	return creds, nil
+}
+
+// importCredsKeyFor returns the raw master key whose id equals kekID, from
+// AUTHIO_IMPORT_CREDS_KEY or, during a rotation,
+// AUTHIO_IMPORT_CREDS_KEY_PREVIOUS. Each slot's id is its _ID variable, or
+// "env" (the original, unversioned key) when unset.
+func importCredsKeyFor(kekID string) string {
+	for _, slot := range []string{"AUTHIO_IMPORT_CREDS_KEY", "AUTHIO_IMPORT_CREDS_KEY_PREVIOUS"} {
+		raw := os.Getenv(slot)
+		if raw == "" {
+			continue
+		}
+		id := strings.TrimSpace(os.Getenv(slot + "_ID"))
+		if id == "" {
+			id = "env"
+		}
+		if id == kekID {
+			return raw
+		}
+	}
+	return ""
 }
 
 func deriveMasterKey(raw string) []byte {
